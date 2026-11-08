@@ -8,7 +8,7 @@ import type { Invitation } from "@/types/invitation";
 
 /**
  * 2027년 2월 27일 청첩장 1차 공개 초안.
- * 축의금 계좌는 공개 저장소에 포함하지 않도록 null로 처리한다.
+ * 초안에서 제공된 축의금 계좌 중 5개를 적용하고, 신랑 아버지 계좌는 비공개한다.
  */
 export const invitation: Invitation = {
   couple: {
@@ -16,15 +16,15 @@ export const invitation: Invitation = {
       name: "고민혁",
       childOrder: "장남",
       father: { name: "고윤석", account: null },
-      mother: { name: "노현미", account: null },
-      account: null,
+      mother: { name: "노현미", account: { bank: "카카오뱅크", number: "3333-21-5506891" } },
+      account: { bank: "카카오뱅크", number: "3333-07-8321898" },
     },
     bride: {
       name: "이유진",
       childOrder: "차녀",
-      father: { name: "이기홍", account: null },
-      mother: { name: "이주현", account: null },
-      account: null,
+      father: { name: "이기홍", account: { bank: "하나은행", number: "568-910008-71707" } },
+      mother: { name: "이주현", account: { bank: "신한은행", number: "325-02-140786" } },
+      account: { bank: "하나은행", number: "355-911036-33307" },
     },
   },
   ceremony: {
