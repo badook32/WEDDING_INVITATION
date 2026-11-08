@@ -5,7 +5,7 @@ import { Reveal } from "@/components/ui";
 import { invitation } from "@/data/invitation";
 import { useKakaoRoughMap } from "@/hooks/useKakaoRoughMap";
 
-/** 예식장 위치와 교통편. */
+/** 예식장 위치와 주소. */
 export function Location() {
   const { venue } = invitation;
   const { status, containerProps } = useKakaoRoughMap(venue.map);
@@ -40,15 +40,6 @@ export function Location() {
             {venue.name} {venue.hall}
           </Address>
 
-          {venue.transit.map((guide) => (
-            <TransitGroup key={guide.label}>
-              <TransitList role="list">
-                {guide.directions.map((direction) => (
-                  <li key={direction}>{direction}</li>
-                ))}
-              </TransitList>
-            </TransitGroup>
-          ))}
         </Reveal>
       </Section>
     </Container>
@@ -84,21 +75,6 @@ const MapLink = styled.a`
 const Address = styled.p`
   margin: ${({ theme }) => theme.space[10]} 0;
   color: ${({ theme }) => theme.color.text};
-  font-size: ${({ theme }) => theme.fontSize.sm};
-  text-align: center;
-`;
-
-const TransitGroup = styled.div`
-  & + & {
-    margin-top: ${({ theme }) => theme.space[8]};
-  }
-`;
-
-const TransitList = styled.ul`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.space[1]};
-  color: ${({ theme }) => theme.color.textMuted};
   font-size: ${({ theme }) => theme.fontSize.sm};
   text-align: center;
 `;
