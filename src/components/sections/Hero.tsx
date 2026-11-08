@@ -2,7 +2,6 @@ import styled from "styled-components";
 import BackgroundPoster from "@/assets/BackgroundVideoPoster.webp";
 import { Container } from "@/components/layout/Container";
 import { invitation } from "@/data/invitation";
-import { useDaysUntilCeremony } from "@/hooks/useDaysUntilCeremony";
 import { formatCeremonyDateTime, toDateTimeAttribute } from "@/lib/ceremony";
 
 /**
@@ -13,14 +12,23 @@ import { formatCeremonyDateTime, toDateTimeAttribute } from "@/lib/ceremony";
  */
 export function Hero() {
   const { couple, ceremony, venue } = invitation;
-  const daysLeft = useDaysUntilCeremony(ceremony.startsAt);
 
   return (
     <Header>
       <Container>
-        <Eyebrow>WEDDING INVITATION</Eyebrow>
+        <Eyebrow>FEBRUARY 27 2027 · SATURDAY</Eyebrow>
+        <HeroTitle>WEDDING DAY</HeroTitle>
+        <CoverPhoto
+          src={BackgroundPoster}
+          alt="한옥 앞에 함께 서 있는 신랑과 신부"
+          width={1536}
+          height={1152}
+          fetchPriority="high"
+        />
         <Names>
-          {couple.groom.name} &amp; {couple.bride.name}
+          <span>{couple.groom.name}</span>
+          <And>그리고</And>
+          <span>{couple.bride.name}</span>
         </Names>
         <Schedule>
           <time dateTime={toDateTimeAttribute(ceremony.startsAt)}>
@@ -29,27 +37,6 @@ export function Hero() {
           <br />
           {venue.name} {venue.hall}
         </Schedule>
-        {/*
-          남은 일수는 마운트 이후에야 정해지므로(SSG 특성상 렌더 중 계산 불가),
-          조건부로 끼워 넣으면 hydration 직후 아래 내용이 통째로 밀려 내려간다.
-          바로 아래 메인 사진의 자리가 밀리지 않도록 높이를 유지한다.
-          자리를 미리 잡아 두고 내용만 채운다.
-        */}
-        <Countdown>
-          {daysLeft !== null && daysLeft > 0
-            ? `예식까지 ${daysLeft}일 남았습니다`
-            : null}
-        </Countdown>
-      </Container>
-
-      {/* 메인 웨딩 사진: 원본 4:3 구도를 유지한다. */}
-      <CoverPhoto
-        src={BackgroundPoster}
-        alt="한옥 앞에 함께 서 있는 신랑과 신부"
-        width={1536}
-        height={1152}
-        fetchPriority="high"
-      />
     </Header>
   );
 }
@@ -70,40 +57,56 @@ const Header = styled.header`
 `;
 
 const Eyebrow = styled.p`
-  margin-bottom: ${({ theme }) => theme.space[4]};
-  color: ${({ theme }) => theme.color.textSubtle};
-  font-size: ${({ theme }) => theme.fontSize.xs};
-  letter-spacing: 0.12em;
+  margin: 0 0 4px;
+  color: #79716e;
+  font-size: 11px;
+  letter-spacing: 0.18em;
 `;
 
-const Names = styled.h1`
-  margin-bottom: ${({ theme }) => theme.space[4]};
-  color: ${({ theme }) => theme.color.accent};
-  font-size: ${({ theme }) => theme.fontSize.xl};
-  font-weight: 700;
+const HeroTitle = styled.h1`
+  margin: 0 0 26px;
+  color: #a8434a;
+  font-size: clamp(27px, 7.5vw, 36px);
+  font-weight: 400;
+  letter-spacing: 0.16em;
+`;
+
+const Names = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 28px 0 14px;
+  color: #3e3a39;
+  font-size: clamp(18px, 5vw, 23px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+`;
+
+const And = styled.span`
+  color: #a8434a;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: normal;
 `;
 
 const Schedule = styled.p`
-  margin-bottom: ${({ theme }) => theme.space[4]};
-  color: ${({ theme }) => theme.color.textMuted};
-  font-size: ${({ theme }) => theme.fontSize.sm};
-`;
-
-const Countdown = styled.p`
-  /* 비어 있을 때도 한 줄 높이를 유지해 내용이 채워져도 레이아웃이 움직이지 않는다. */
-  min-height: 1.75em;
-  margin-bottom: ${({ theme }) => theme.space[6]};
-  color: ${({ theme }) => theme.color.accent};
-  font-size: ${({ theme }) => theme.fontSize.xs};
+  margin: 0 0 22px;
+  color: #79716e;
+  font-size: 13px;
+  line-height: 1.9;
 `;
 
 const CoverPhoto = styled.img`
   display: block;
   width: 100%;
-  max-width: ${({ theme }) => theme.layout.maxWidth};
+  max-width: 405px;
   height: auto;
   aspect-ratio: 4 / 3;
   object-fit: contain;
   margin: 0 auto;
-  background-color: ${({ theme }) => theme.color.background};
+  border-radius: 14px;
+  background-color: #efebe9;
+  box-shadow: 0 8px 28px rgba(62, 58, 57, 0.09);
 `;
