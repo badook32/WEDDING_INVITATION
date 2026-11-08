@@ -65,9 +65,9 @@ function resolveSiteUrl(): string {
 }
 
 export const siteConfig: SiteConfig = {
-  title: "고민혁 ♥ 이유진 결혼합니다",
+  title: "고민혁 ♥ 이유진 결혼식에 초대합니다",
   description:
-    "저희 두 사람이 사랑의 이름으로 지켜나갈 수 있게 앞날을 축복해 주세요.",
+    "2027년 2월 27일 토요일 오후 4시 · 아름다운컨벤션웨딩 2층 컨벤션홀",
   url: resolveSiteUrl(),
   /*
    * 링크 미리보기 이미지. webp가 아니라 jpg인 이유는 카카오톡을 비롯한

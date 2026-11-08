@@ -4,13 +4,12 @@ import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { Button, Reveal, useToast } from "@/components/ui";
 import { getShareUrl, siteConfig, toAbsoluteUrl } from "@/config/site";
-import { invitation } from "@/data/invitation";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { loadKakaoSdk, shareInvitation } from "@/lib/kakao";
 
 /** 청첩장 공유. */
 export function Share() {
-  const { couple } = invitation;
+
   const { copy } = useCopyToClipboard();
   const { showToast } = useToast();
   const [sharing, setSharing] = useState(false);
@@ -24,8 +23,8 @@ export function Share() {
     try {
       const kakao = await loadKakaoSdk(kakaoKey);
       shareInvitation(kakao, {
-        title: `${couple.groom.name} ♥ ${couple.bride.name} 결혼식에 초대합니다`,
-        description: "아래 '청첩장 열기' 버튼을 눌러 읽어주세요.",
+        title: siteConfig.title,
+        description: siteConfig.description,
         imageUrl: toAbsoluteUrl(siteConfig.ogImagePath),
         url: getShareUrl(),
       });

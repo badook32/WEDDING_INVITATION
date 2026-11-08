@@ -42,6 +42,7 @@ export function Seo({ title, description, pathname = "/" }: SeoProps) {
       <meta name="robots" content="noindex, follow" />
 
       <meta property="og:type" content="website" />
+      <meta property="og:site_name" content={`${invitation.couple.groom.name} ♥ ${invitation.couple.bride.name} 결혼식`} />
       <meta property="og:title" content={pageTitle} />
       <meta property="og:description" content={pageDescription} />
       <meta property="og:url" content={canonical} />
