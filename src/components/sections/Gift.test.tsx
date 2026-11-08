@@ -57,10 +57,10 @@ describe("Gift", () => {
 
     const dialog = screen.getByRole("dialog");
     expect(dialog).toHaveAccessibleName("신랑측 계좌번호");
-    /* 아버지 · 어머니 · 신랑 세 항목 */
+    /* 신랑 본인 · 어머니 두 항목 (아버지 계좌 비공개) */
     expect(
       within(dialog).getAllByRole("button", { name: /복사$/ }),
-    ).toHaveLength(3);
+    ).toHaveLength(2);
   });
 
   it("한 번에 한 쪽 모달만 열린다", async () => {
@@ -96,7 +96,7 @@ describe("Gift", () => {
     });
     await user.click(firstAccount as HTMLElement);
 
-    expect(writeText).toHaveBeenCalledWith(expect.stringMatching(/^○○은행 /));
+    expect(writeText).toHaveBeenCalledWith(expect.stringMatching(/^카카오뱅크 /));
   });
 
   it("복사에 성공하면 스크린 리더에도 결과를 알린다", async () => {
@@ -157,7 +157,7 @@ describe("Gift", () => {
     /* 스크린 리더 사용자가 어느 계좌를 복사하는지 알 수 있어야 한다. */
     expect(
       within(screen.getByRole("dialog")).getByRole("button", {
-        name: /^아버지 .*의 계좌번호 ○○은행 .* 복사$/,
+        name: /^신랑 고민혁의 계좌번호 카카오뱅크 .* 복사$/,
       }),
     ).toBeInTheDocument();
   });

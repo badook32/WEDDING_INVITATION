@@ -27,6 +27,7 @@ function toGroup(
   selfRelation: string,
 ): GiftAccountGroup {
   const candidates = [
+    { relation: selfRelation, name: partner.name, account: partner.account },
     {
       relation: "아버지",
       name: partner.father.name,
@@ -37,7 +38,6 @@ function toGroup(
       name: partner.mother.name,
       account: partner.mother.account,
     },
-    { relation: selfRelation, name: partner.name, account: partner.account },
   ];
 
   /* filter로는 account의 null이 타입에서 제거되지 않으므로 flatMap으로 좁힌다. */

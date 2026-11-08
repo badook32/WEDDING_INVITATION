@@ -34,13 +34,13 @@ describe("selectGiftAccountGroups", () => {
     expect(groups.map((group) => group.label)).toEqual(["신랑측", "신부측"]);
   });
 
-  it("아버지 · 어머니 · 본인 순으로 정렬한다", () => {
+  it("본인 · 아버지 · 어머니 순으로 정렬한다", () => {
     const [groomGroup] = selectGiftAccountGroups(couple());
 
     expect(groomGroup?.entries.map((entry) => entry.relation)).toEqual([
+      "신랑",
       "아버지",
       "어머니",
-      "신랑",
     ]);
   });
 
@@ -48,7 +48,7 @@ describe("selectGiftAccountGroups", () => {
     const groups = selectGiftAccountGroups(couple());
     const brideGroup = groups.find((group) => group.label === "신부측");
 
-    expect(brideGroup?.entries.at(-1)?.relation).toBe("신부");
+    expect(brideGroup?.entries[0]?.relation).toBe("신부");
   });
 
   it("계좌를 공개하지 않은 구성원은 목록에서 제외한다", () => {
@@ -60,8 +60,8 @@ describe("selectGiftAccountGroups", () => {
     const groomGroup = groups.find((group) => group.label === "신랑측");
 
     expect(groomGroup?.entries.map((entry) => entry.relation)).toEqual([
-      "아버지",
       "신랑",
+      "아버지",
     ]);
   });
 
