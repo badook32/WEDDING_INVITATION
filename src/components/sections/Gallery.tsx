@@ -60,12 +60,12 @@ export function Gallery() {
                   src={photo.src}
                   alt={photo.alt}
                   /*
-                   * 원본 비율(3:2)을 속성으로 알려 이미지가 도착하기 전에도
+                   * 사진별 원본 비율을 속성으로 알려 이미지가 도착하기 전에도
                    * 자리를 차지하게 한다. 없으면 로드될 때마다 아래 내용이
                    * 밀려 내려간다(CLS).
                    */
-                  width={1200}
-                  height={800}
+                  width={index === 3 ? 1536 : 1024}
+                  height={index === 3 ? 1024 : 1536}
                   loading={index === 0 ? "eager" : "lazy"}
                   decoding="async"
                 />
@@ -152,12 +152,13 @@ const Slide = styled.li`
 `;
 
 const Photo = styled.img`
+  display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
+  aspect-ratio: 2 / 3;
+  object-fit: contain;
   border-radius: 4px;
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: rgba(0, 0, 0, 0.035);
 `;
 
 const Controls = styled.div`

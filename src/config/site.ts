@@ -65,7 +65,7 @@ function resolveSiteUrl(): string {
 }
 
 export const siteConfig: SiteConfig = {
-  title: "○○○ ♥ ○○○ 결혼합니다",
+  title: "고민혁 ♥ 이유진 결혼합니다",
   description:
     "저희 두 사람이 사랑의 이름으로 지켜나갈 수 있게 앞날을 축복해 주세요.",
   url: resolveSiteUrl(),

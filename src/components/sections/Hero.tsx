@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import BackgroundVideo from "@/assets/BackgroundVideo.mp4";
 import BackgroundPoster from "@/assets/BackgroundVideoPoster.webp";
 import { Container } from "@/components/layout/Container";
 import { invitation } from "@/data/invitation";
@@ -33,7 +32,7 @@ export function Hero() {
         {/*
           남은 일수는 마운트 이후에야 정해지므로(SSG 특성상 렌더 중 계산 불가),
           조건부로 끼워 넣으면 hydration 직후 아래 내용이 통째로 밀려 내려간다.
-          바로 아래가 이 페이지의 LCP 후보인 배경 영상이라 그 이동이 CLS로 잡힌다.
+          바로 아래 메인 사진의 자리가 밀리지 않도록 높이를 유지한다.
           자리를 미리 잡아 두고 내용만 채운다.
         */}
         <Countdown>
@@ -43,24 +42,14 @@ export function Hero() {
         </Countdown>
       </Container>
 
-      {/* 소리도 대사도 없는 장식용 배경 영상이므로 접근성 트리에서 제외한다. */}
-      <BackdropVideo
-        autoPlay
-        loop
-        muted
-        playsInline
-        /*
-         * poster 덕분에 영상 데이터가 도착하기 전에도 첫 화면이 채워진다.
-         * 32KB짜리 정지 이미지가 490KB 영상보다 훨씬 먼저 그려지므로
-         * LCP가 영상 다운로드에 묶이지 않는다.
-         */
-        poster={BackgroundPoster}
-        preload="metadata"
-        aria-hidden="true"
-        tabIndex={-1}
-      >
-        <source src={BackgroundVideo} type="video/mp4" />
-      </BackdropVideo>
+      {/* 메인 웨딩 사진: 원본 4:3 구도를 유지한다. */}
+      <CoverPhoto
+        src={BackgroundPoster}
+        alt="한옥 앞에 함께 서 있는 신랑과 신부"
+        width={1536}
+        height={1152}
+        fetchPriority="high"
+      />
     </Header>
   );
 }
@@ -108,12 +97,13 @@ const Countdown = styled.p`
   font-size: ${({ theme }) => theme.fontSize.xs};
 `;
 
-const BackdropVideo = styled.video`
+const CoverPhoto = styled.img`
+  display: block;
   width: 100%;
   max-width: ${({ theme }) => theme.layout.maxWidth};
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
   margin: 0 auto;
-  /* 영상이 로드되기 전에도 자리를 차지해 레이아웃이 밀리지 않게 한다. */
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
   background-color: ${({ theme }) => theme.color.background};
 `;
