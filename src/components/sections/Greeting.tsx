@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import { Container } from "@/components/layout/Container";
-import { Section } from "@/components/layout/Section";
 import { Reveal } from "@/components/ui";
 import { invitation } from "@/data/invitation";
 
@@ -13,7 +12,7 @@ export function Greeting() {
 
   return (
     <Container>
-      <GreetingPanel>
+      <GreetingPanel aria-labelledby="greeting-heading">
         <QuoteIntro>
           <QuoteLines>
             {quote.lines.map((line) => (
@@ -24,36 +23,50 @@ export function Greeting() {
             <cite>— {quote.source}</cite>
           </QuoteCaption>
         </QuoteIntro>
-        <Section title={greeting.heading} ornament>
-        <Message>
-          {greeting.paragraphs.map((paragraph, index) => (
-            <Reveal key={paragraph} delay={index * STAGGER_DELAY_MS}>
-              <GreetingParagraph>{paragraph}</GreetingParagraph>
-            </Reveal>
-          ))}
-        </Message>
+        <Flower aria-hidden="true">✿</Flower>
+        <GreetingHeading id="greeting-heading">{greeting.heading}</GreetingHeading>
+          <Message>
+            {greeting.paragraphs.map((paragraph, index) => (
+              <Reveal key={paragraph} delay={index * STAGGER_DELAY_MS}>
+                <GreetingParagraph>{paragraph}</GreetingParagraph>
+              </Reveal>
+            ))}
+          </Message>
 
-        <Reveal delay={greeting.paragraphs.length * STAGGER_DELAY_MS}>
-          <Families role="list">
-            <li>
-              <ParentNames>{couple.groom.father.name} · {couple.groom.mother.name}</ParentNames>
-              <ChildOrder>의 {couple.groom.childOrder}</ChildOrder>
-              <FamilyRole>신랑</FamilyRole>
-              <PartnerName>{couple.groom.name}</PartnerName>
-            </li>
-            <li>
-              <ParentNames>{couple.bride.father.name} · {couple.bride.mother.name}</ParentNames>
-              <ChildOrder>의 {couple.bride.childOrder}</ChildOrder>
-              <FamilyRole>신부</FamilyRole>
-              <PartnerName>{couple.bride.name}</PartnerName>
-            </li>
-          </Families>
-        </Reveal>
-        </Section>
+          <Reveal delay={greeting.paragraphs.length * STAGGER_DELAY_MS}>
+            <Families role="list">
+              <li>
+                <ParentNames>{couple.groom.father.name} · {couple.groom.mother.name}</ParentNames>
+                <ChildOrder>의 {couple.groom.childOrder}</ChildOrder>
+                <FamilyRole>신랑</FamilyRole>
+                <PartnerName>{couple.groom.name}</PartnerName>
+              </li>
+              <li>
+                <ParentNames>{couple.bride.father.name} · {couple.bride.mother.name}</ParentNames>
+                <ChildOrder>의 {couple.bride.childOrder}</ChildOrder>
+                <FamilyRole>신부</FamilyRole>
+                <PartnerName>{couple.bride.name}</PartnerName>
+              </li>
+            </Families>
+          </Reveal>
       </GreetingPanel>
     </Container>
   );
 }
+
+const Flower = styled.div`
+  margin: 26px 0 14px;
+  color: #a8434a;
+  font-size: 17px;
+`;
+
+const GreetingHeading = styled.h2`
+  margin: 0 0 28px;
+  color: #a8434a;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+`;
 
 const Message = styled.div`
   display: flex;
@@ -87,16 +100,13 @@ const Families = styled.ul`
   }
 `;
 
-const GreetingPanel = styled.div`
+const GreetingPanel = styled.section`
   margin-top: 10px;
   padding: 0 10px 36px;
   border-top: 1px solid rgba(100, 88, 80, 0.14);
   border-bottom: 1px solid rgba(100, 88, 80, 0.14);
   background: rgba(255, 255, 255, 0.55);
   text-align: center;
-  > section {
-    padding-top: 27px;
-  }
 `;
 
 const QuoteIntro = styled.figure`
