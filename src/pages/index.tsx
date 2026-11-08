@@ -8,7 +8,6 @@ import { Gift } from "@/components/sections/Gift";
 import { Greeting } from "@/components/sections/Greeting";
 import { Hero } from "@/components/sections/Hero";
 import { Location } from "@/components/sections/Location";
-import { Quote } from "@/components/sections/Quote";
 import { Share } from "@/components/sections/Share";
 import { WeddingDate } from "@/components/sections/WeddingDate";
 import "@/styles/index.css";
@@ -28,7 +27,6 @@ export default function IndexPage() {
         <WeddingDate />
         <Gallery />
         <Location />
-        <Quote />
         <Gift />
         <Share />
       </main>
