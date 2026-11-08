@@ -42,7 +42,6 @@ export function Location() {
 
           {venue.transit.map((guide) => (
             <TransitGroup key={guide.label}>
-              <TransitLabel>{guide.label} 이용 시</TransitLabel>
               <TransitList role="list">
                 {guide.directions.map((direction) => (
                   <li key={direction}>{direction}</li>
@@ -93,20 +92,6 @@ const TransitGroup = styled.div`
   & + & {
     margin-top: ${({ theme }) => theme.space[8]};
   }
-`;
-
-/**
- * 교통편 제목.
- *
- * 기존에는 <p> 안에 <span>으로 들어가 있어 시각적으로만 제목이었다.
- * 섹션 제목(h2) 아래 단계이므로 h3으로 둔다.
- */
-const TransitLabel = styled.h3`
-  margin-bottom: ${({ theme }) => theme.space[2]};
-  color: ${({ theme }) => theme.color.accent};
-  font-size: ${({ theme }) => theme.fontSize.sm};
-  font-weight: 700;
-  text-align: center;
 `;
 
 const TransitList = styled.ul`
