@@ -1,90 +1,42 @@
-import { useState } from "react";
 import styled from "styled-components";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
-import { Modal, Reveal, useToast } from "@/components/ui";
+import { useToast } from "@/components/ui";
 import { invitation } from "@/data/invitation";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { formatAccountForCopy, selectGiftAccountGroups } from "@/lib/gift";
-import type { GiftAccountEntry, GiftAccountGroup } from "@/types/invitation";
+import type { GiftAccountEntry } from "@/types/invitation";
 
 /**
- * 축의금 안내.
- *
- * 기존 구현은 신랑측·신부측 모달을 통째로 복사해 약 100줄이 중복돼 있었고,
- * 그 복사본은 이미 어긋나 있었다. 한쪽은 `모 : {이름}`, 다른 쪽은
- * `모 :{이름}`으로 공백이 빠져 있었다. 복붙한 코드는 반드시 이렇게 갈라진다.
- *
- * 이제 계좌 목록을 데이터에서 파생시키므로(selectGiftAccountGroups)
- * 표시 규칙이 한 곳에만 존재한다.
+ * 신랑·신부 계좌를 처음부터 모두 보여 준다.
+ * 각 계좌 행 전체가 복사 버튼이므로 모달이나 펼치기 조작이 필요 없다.
+ * 표시 순서와 비공개 계좌 제외 규칙은 selectGiftAccountGroups가 관리한다.
  */
 export function Gift() {
   const groups = selectGiftAccountGroups(invitation.couple);
-
-  /*
-   * 열린 그룹을 하나의 상태로 표현한다. boolean 두 개를 쓰면
-   * "두 모달이 동시에 열림"이라는 있을 수 없는 상태가 타입상 가능해진다.
-   */
-  const [openLabel, setOpenLabel] = useState<string | null>(null);
-
   if (groups.length === 0) return null;
 
   return (
     <Container>
       <Section title="축하의 마음을 전하세요" ornament>
-        <Reveal>
-          <Description>축하의 마음을 담아 축의금을 전달해 보세요.</Description>
-
-          <Choices>
-            {groups.map((group) => (
-              <ChoiceButton
-                key={group.label}
-                type="button"
-                onClick={() => setOpenLabel(group.label)}
-              >
-                <HeartIcon />
-                {group.label} 계좌번호 확인
-              </ChoiceButton>
-            ))}
-          </Choices>
-        </Reveal>
-
-        {groups.map((group) => (
-          <AccountModal
-            key={group.label}
-            group={group}
-            open={openLabel === group.label}
-            onClose={() => setOpenLabel(null)}
-          />
-        ))}
+        <Description>계좌번호를 누르면 복사됩니다.</Description>
+        <Groups>
+          {groups.map((group) => (
+            <AccountGroup key={group.label} aria-label={`${group.label} 계좌`}>
+              <GroupTitle>{group.label.replace(/측$/, "")}</GroupTitle>
+              <AccountList>
+                {group.entries.map((entry) => (
+                  <AccountRow
+                    key={`${entry.relation}-${entry.name}-${entry.account.number}`}
+                    entry={entry}
+                  />
+                ))}
+              </AccountList>
+            </AccountGroup>
+          ))}
+        </Groups>
       </Section>
     </Container>
-  );
-}
-
-function AccountModal({
-  group,
-  open,
-  onClose,
-}: {
-  group: GiftAccountGroup;
-  open: boolean;
-  onClose: () => void;
-}) {
-  return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={`${group.label} 계좌번호`}
-      description="계좌번호를 누르면 복사됩니다."
-    >
-      {group.entries.map((entry) => (
-        <AccountRow
-          key={`${entry.relation}-${entry.account.number}`}
-          entry={entry}
-        />
-      ))}
-    </Modal>
   );
 }
 
@@ -94,8 +46,6 @@ function AccountRow({ entry }: { entry: GiftAccountEntry }) {
 
   const handleCopy = async () => {
     const copied = await copy(formatAccountForCopy(entry));
-
-    /* 성공했을 때만 성공을 알린다. 계좌번호에서 이 구분은 중요하다. */
     showToast(
       copied
         ? "계좌번호가 복사되었습니다."
@@ -104,110 +54,126 @@ function AccountRow({ entry }: { entry: GiftAccountEntry }) {
   };
 
   return (
-    <Row>
-      <Who>
-        {entry.relation} {entry.name}
-      </Who>
+    <AccountItem>
       <CopyButton
         type="button"
         onClick={handleCopy}
         aria-label={`${entry.relation} ${entry.name}의 계좌번호 ${entry.account.bank} ${entry.account.number} 복사`}
       >
-        {entry.account.bank} {entry.account.number}
+        <AccountInfo>
+          <AccountOwner>{entry.relation} {entry.name}</AccountOwner>
+          <BankAndNumber>
+            <Bank>{entry.account.bank}</Bank>
+            <Number>{entry.account.number}</Number>
+          </BankAndNumber>
+        </AccountInfo>
+        <CopyIcon aria-hidden="true" viewBox="0 0 24 24" fill="none">
+          <rect x="8" y="8" width="11" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M16 8V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h1" stroke="currentColor" strokeWidth="1.5" />
+        </CopyIcon>
       </CopyButton>
-    </Row>
-  );
-}
-
-function HeartIcon() {
-  return (
-    <svg
-      width="32"
-      height="32"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path
-        d="M12 20s-7-4.35-7-9a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 4.65-7 9-7 9Z"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinejoin="round"
-      />
-    </svg>
+    </AccountItem>
   );
 }
 
 const Description = styled.p`
-  margin-bottom: ${({ theme }) => theme.space[10]};
+  margin: 0 0 24px;
   color: ${({ theme }) => theme.color.textMuted};
   font-size: ${({ theme }) => theme.fontSize.sm};
   text-align: center;
 `;
 
-const Choices = styled.div`
+const Groups = styled.div`
   display: flex;
-  justify-content: center;
-  gap: ${({ theme }) => theme.space[3]};
-`;
-
-/**
- * 기존에는 styled.div에 onClick만 달려 있었다. 키보드 사용자는 Tab으로
- * 도달할 수 없고, 스크린 리더는 버튼이라는 사실조차 알리지 않는다.
- * 계좌번호에 이르는 유일한 경로가 마우스 클릭뿐이었다.
- */
-const ChoiceButton = styled.button`
-  display: flex;
-  flex: 1 1 0;
   flex-direction: column;
-  align-items: center;
-  gap: ${({ theme }) => theme.space[3]};
-  padding: ${({ theme }) => theme.space[6]} ${({ theme }) => theme.space[3]};
-  border: 1px solid ${({ theme }) => theme.color.border};
-  border-radius: 4px;
-  background-color: transparent;
-  color: ${({ theme }) => theme.color.text};
-  font-size: ${({ theme }) => theme.fontSize.sm};
-  cursor: pointer;
-  transition: background-color ${({ theme }) => theme.motion.duration.fast} ease;
-
-  svg {
-    color: ${({ theme }) => theme.color.accent};
-  }
-
-  &:hover {
-    background-color: ${({ theme }) => theme.color.accentSurface};
-  }
+  gap: 28px;
 `;
 
-const Row = styled.div`
+const AccountGroup = styled.section`
+  min-width: 0;
+`;
+
+const GroupTitle = styled.h3`
+  margin: 0 0 12px;
+  color: ${({ theme }) => theme.color.accent};
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+`;
+
+const AccountList = styled.ul`
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: ${({ theme }) => theme.space[3]};
-  font-size: ${({ theme }) => theme.fontSize.sm};
+  flex-direction: column;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 `;
 
-const Who = styled.span`
-  flex: 0 0 auto;
-  font-weight: 700;
+const AccountItem = styled.li`
+  min-width: 0;
 `;
 
 const CopyButton = styled.button`
-  flex: 1 1 auto;
-  min-height: 44px;
-  padding: 0 ${({ theme }) => theme.space[2]};
-  border: 0;
-  border-radius: 4px;
-  background: none;
-  color: ${({ theme }) => theme.color.textMuted};
-  font-size: ${({ theme }) => theme.fontSize.sm};
-  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  min-height: 68px;
+  padding: 13px 16px;
+  border: 1px solid ${({ theme }) => theme.color.border};
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.72);
+  color: ${({ theme }) => theme.color.text};
+  text-align: left;
   cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
 
   &:hover {
     background-color: ${({ theme }) => theme.color.accentSurface};
-    color: ${({ theme }) => theme.color.accent};
+    border-color: ${({ theme }) => theme.color.accentSoft};
   }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.color.focusRing};
+    outline-offset: 2px;
+  }
+`;
+
+const AccountInfo = styled.span`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+`;
+
+const AccountOwner = styled.span`
+  font-size: 14px;
+  font-weight: 600;
+`;
+
+const BankAndNumber = styled.span`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 8px;
+  color: ${({ theme }) => theme.color.textMuted};
+  font-size: 13px;
+  line-height: 1.5;
+`;
+
+const Bank = styled.span`
+  white-space: nowrap;
+`;
+
+const Number = styled.span`
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+`;
+
+const CopyIcon = styled.svg`
+  flex: 0 0 21px;
+  width: 21px;
+  height: 21px;
+  color: ${({ theme }) => theme.color.accent};
 `;
