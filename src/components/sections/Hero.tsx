@@ -47,6 +47,7 @@ export function Hero() {
           <br />
           {venue.name} {venue.hall}
         </Schedule>
+      </Container>
     </Header>
   );
 }
