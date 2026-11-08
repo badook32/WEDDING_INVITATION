@@ -6,7 +6,7 @@
  */
 
 const color = {
-  background: "#efebe9",
+  background: "#D5E9E1",
   surface: "#ffffff",
   overlay: "rgba(0, 0, 0, 0.45)",
 

@@ -45,7 +45,11 @@ export function Head() {
 const Page = styled.div`
   min-height: 100vh;
   background-color: ${({ theme }) => theme.color.background};
-  background-image: url(${GroovePaper});
+  /* Preserve the original paper grain very subtly under the mint tint. */
+  background-image:
+    linear-gradient(rgba(213, 233, 225, 0.92), rgba(213, 233, 225, 0.92)),
+    url(${GroovePaper});
+  background-repeat: no-repeat, repeat;
 `;
 
 const Footer = styled.footer`
