@@ -47,7 +47,7 @@ const Page = styled.div`
   background-color: ${({ theme }) => theme.color.background};
   /* Preserve the original paper grain very subtly under the mint tint. */
   background-image:
-    linear-gradient(rgba(220, 228, 224, 0.94), rgba(220, 228, 224, 0.94)),
+    linear-gradient(rgba(213, 233, 225, 0.92), rgba(213, 233, 225, 0.92)),
     url(${GroovePaper});
   background-repeat: no-repeat, repeat;
 `;

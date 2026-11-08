@@ -77,7 +77,7 @@ export function Seo({ title, description, pathname = "/" }: SeoProps) {
       <meta name="twitter:image" content={ogImage} />
 
       {/* 모바일 브라우저 주소창을 배경색과 맞춘다. */}
-      <meta name="theme-color" content="#DCE4E0" />
+      <meta name="theme-color" content="#D5E9E1" />
 
       {/*
         구조화 데이터. 검색엔진과 메신저가 "언제 어디서 열리는 행사"인지
