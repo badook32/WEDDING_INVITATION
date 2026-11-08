@@ -12,11 +12,21 @@ import { formatCeremonyDateTime, toDateTimeAttribute } from "@/lib/ceremony";
  */
 export function Hero() {
   const { couple, ceremony, venue } = invitation;
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "long",
+  }).formatToParts(new Date(ceremony.startsAt));
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((item) => item.type === type)?.value ?? "";
+  const coverDateLabel = `${part("month").toUpperCase()} ${part("day")} ${part("year")} · ${part("weekday").toUpperCase()}`;
 
   return (
     <Header>
       <Container>
-        <Eyebrow>FEBRUARY 27 2027 · SATURDAY</Eyebrow>
+        <Eyebrow>{coverDateLabel}</Eyebrow>
         <HeroTitle>WEDDING DAY</HeroTitle>
         <CoverPhoto
           src={BackgroundPoster}
