@@ -23,16 +23,6 @@ export function Location() {
           <MapFallback>지도를 불러오지 못했습니다.</MapFallback>
         )}
 
-        {/*
-          임베드된 약도는 확대도 길찾기도 되지 않고(컨트롤을 숨긴다),
-          스크린 리더에는 아무 정보도 주지 않는다. 지도가 정상일 때도
-          외부 지도로 나갈 경로가 필요하다. 예전에는 이 링크가 실패했을
-          때만 나와서, 실패한 쪽이 성공한 쪽보다 쓸모 있는 상태였다.
-        */}
-        <MapLink href={kakaoMapUrl} target="_blank" rel="noreferrer noopener">
-          카카오맵에서 길찾기
-        </MapLink>
-
         <Reveal>
           <Address>
             {venue.address}
@@ -40,6 +30,25 @@ export function Location() {
             {venue.name} {venue.hall}
           </Address>
 
+          <MapButtons aria-label="지도 앱에서 길찾기">
+            <MapLink href={kakaoMapUrl} target="_blank" rel="noopener noreferrer">
+              카카오맵
+            </MapLink>
+            <MapLink
+              href="https://naver.me/5qLv5PuY"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              네이버지도
+            </MapLink>
+            <MapLink
+              href="https://tmap.life/506d70fb"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              TMAP
+            </MapLink>
+          </MapButtons>
         </Reveal>
       </Section>
     </Container>
@@ -61,19 +70,38 @@ const MapFallback = styled.p`
   text-align: center;
 `;
 
+const MapButtons = styled.nav`
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: ${({ theme }) => theme.space[2]};
+  margin-top: ${({ theme }) => theme.space[4]};
+`;
+
 const MapLink = styled.a`
   display: flex;
   align-items: center;
   justify-content: center;
-  /* 손가락으로 누를 수 있는 최소 높이 */
-  min-height: 44px;
-  margin-top: ${({ theme }) => theme.space[3]};
-  color: ${({ theme }) => theme.color.accent};
-  font-size: ${({ theme }) => theme.fontSize.sm};
+  min-width: 0;
+  min-height: 48px;
+  padding: ${({ theme }) => theme.space[2]};
+  border: 1px solid ${({ theme }) => theme.color.border};
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.75);
+  color: ${({ theme }) => theme.color.text};
+  font-size: clamp(12px, 3.2vw, 14px);
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color ${({ theme }) => theme.motion.duration.fast} ease;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.color.accentSurface};
+    color: ${({ theme }) => theme.color.accent};
+  }
 `;
 
 const Address = styled.p`
-  margin: ${({ theme }) => theme.space[10]} 0;
+  margin: ${({ theme }) => theme.space[10]} 0 0;
   color: ${({ theme }) => theme.color.text};
   font-size: ${({ theme }) => theme.fontSize.sm};
   text-align: center;
