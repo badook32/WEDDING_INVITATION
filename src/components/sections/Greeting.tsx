@@ -25,30 +25,30 @@ export function Greeting() {
         </QuoteIntro>
         <Flower aria-hidden="true">✿</Flower>
         <GreetingHeading id="greeting-heading">{greeting.heading}</GreetingHeading>
-          <Message>
-            {greeting.paragraphs.map((paragraph, index) => (
-              <Reveal key={paragraph} delay={index * STAGGER_DELAY_MS}>
-                <GreetingParagraph>{paragraph}</GreetingParagraph>
-              </Reveal>
-            ))}
-          </Message>
+        <Message>
+          {greeting.paragraphs.map((paragraph, index) => (
+            <Reveal key={paragraph} delay={index * STAGGER_DELAY_MS}>
+              <GreetingParagraph>{paragraph}</GreetingParagraph>
+            </Reveal>
+          ))}
+        </Message>
 
-          <Reveal delay={greeting.paragraphs.length * STAGGER_DELAY_MS}>
-            <Families role="list">
-              <li>
-                <ParentNames>{couple.groom.father.name} · {couple.groom.mother.name}</ParentNames>
-                <ChildOrder>의 {couple.groom.childOrder}</ChildOrder>
-                <FamilyRole>신랑</FamilyRole>
-                <PartnerName>{couple.groom.name}</PartnerName>
-              </li>
-              <li>
-                <ParentNames>{couple.bride.father.name} · {couple.bride.mother.name}</ParentNames>
-                <ChildOrder>의 {couple.bride.childOrder}</ChildOrder>
-                <FamilyRole>신부</FamilyRole>
-                <PartnerName>{couple.bride.name}</PartnerName>
-              </li>
-            </Families>
-          </Reveal>
+        <Reveal delay={greeting.paragraphs.length * STAGGER_DELAY_MS}>
+          <Families role="list">
+            <li>
+              <ParentNames>{couple.groom.father.name} · {couple.groom.mother.name}</ParentNames>
+              <ChildOrder>의 {couple.groom.childOrder}</ChildOrder>
+              <FamilyRole>신랑</FamilyRole>
+              <PartnerName>{couple.groom.name}</PartnerName>
+            </li>
+            <li>
+              <ParentNames>{couple.bride.father.name} · {couple.bride.mother.name}</ParentNames>
+              <ChildOrder>의 {couple.bride.childOrder}</ChildOrder>
+              <FamilyRole>신부</FamilyRole>
+              <PartnerName>{couple.bride.name}</PartnerName>
+            </li>
+          </Families>
+        </Reveal>
       </GreetingPanel>
     </Container>
   );
