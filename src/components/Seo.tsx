@@ -30,6 +30,21 @@ export function Seo({ title, description, pathname = "/" }: SeoProps) {
   return (
     <>
       <title>{pageTitle}</title>
+      {/*
+        iOS Safari와 Android Chrome에서 같은 Noto Serif KR 웹폰트를 사용한다.
+        Google Fonts CSS는 한글 부분집합과 font-display: swap을 제공한다.
+        다운로드가 실패하면 theme.font.body에 지정된 기존 시스템 폰트를 사용한다.
+      */}
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossOrigin="anonymous"
+      />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&display=swap"
+      />
       <meta name="description" content={pageDescription} />
       <link rel="canonical" href={canonical} />
 
