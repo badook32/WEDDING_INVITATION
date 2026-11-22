@@ -50,7 +50,7 @@ export function Gallery() {
                 key={photo.src}
                 photo={photo}
                 index={startIndex + index}
-                displayMode="tile"
+                displayMode={rowIndex === 0 ? (index === 1 ? "portraitScaled" : "natural") : "tile"}
                 onOpen={openAt}
               />
             ))}
@@ -76,7 +76,7 @@ function PhotoTile({
 }: {
   photo: GalleryPhoto;
   index: number;
-  displayMode: "natural" | "tile";
+  displayMode: "natural" | "portraitScaled" | "tile";
   onOpen: (index: number) => void;
 }) {
   return (
@@ -213,12 +213,15 @@ const TileButton = styled.button`
   cursor: zoom-in;
   overflow: hidden;
 `;
-const TileImage = styled.img<{ $displayMode: "natural" | "tile" }>`
+const TileImage = styled.img<{ $displayMode: "natural" | "portraitScaled" | "tile" }>`
   display: block;
-  width: 100%;
+  /* Top row: landscape photos are 4:3, portrait is 3:4.
+     A 56.25% portrait width gives the same displayed height without cropping. */
+  width: ${({ $displayMode }) => ($displayMode === "portraitScaled" ? "56.25%" : "100%")};
   height: auto;
-  aspect-ratio: ${({ $displayMode }) => ($displayMode === "natural" ? "auto" : "3 / 4")};
-  object-fit: ${({ $displayMode }) => ($displayMode === "natural" ? "contain" : "cover")};
+  margin: 0 auto;
+  aspect-ratio: ${({ $displayMode }) => ($displayMode === "tile" ? "3 / 4" : "auto")};
+  object-fit: ${({ $displayMode }) => ($displayMode === "tile" ? "cover" : "contain")};
   object-position: center;
   transition: transform 250ms ease;
   ${TileButton}:hover & {
