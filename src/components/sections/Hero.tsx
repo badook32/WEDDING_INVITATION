@@ -1,9 +1,12 @@
 import styled from "styled-components";
 import { invitation } from "@/data/invitation";
+import { formatCeremonyDateTime, toDateTimeAttribute } from "@/lib/ceremony";
 
-/** 메인 사진은 별도 최적화한 SCV01144-1 색감 원본을 사용한다. */
+/** 메인 사진은 기존 SCV01144-1 색감 이미지를 유지한다. */
 export function Hero() {
-  const { couple } = invitation;
+  const { couple, ceremony, venue } = invitation;
+  const ceremonyText = formatCeremonyDateTime(ceremony.startsAt).replace(/ 00분$/, "");
+  const shortVenueName = venue.name.replace(/웨딩$/, "");
 
   return (
     <Header>
@@ -15,10 +18,22 @@ export function Hero() {
         fetchPriority="high"
       />
       <Names>
-        <span>{couple.groom.name}</span>
-        <Heart aria-label="하트">♥</Heart>
-        <span>{couple.bride.name}</span>
+        <Person>
+          <Role>신랑</Role>
+          <PersonName>{couple.groom.name}</PersonName>
+        </Person>
+        <Heart aria-hidden="true">♥</Heart>
+        <Person>
+          <Role>신부</Role>
+          <PersonName>{couple.bride.name}</PersonName>
+        </Person>
       </Names>
+      <CeremonyInfo>
+        <time dateTime={toDateTimeAttribute(ceremony.startsAt)}>
+          {ceremonyText}
+        </time>
+        <VenueInfo>{shortVenueName} {venue.hall}</VenueInfo>
+      </CeremonyInfo>
     </Header>
   );
 }
@@ -47,19 +62,63 @@ const CoverPhoto = styled.img`
 `;
 
 const Names = styled.h1`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  padding: 29px 12px 13px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr);
+  align-items: end;
+  gap: 12px;
+  width: min(100%, 350px);
+  margin: 0 auto;
+  padding: 30px 15px 0;
   color: ${({ theme }) => theme.color.text};
-  font-size: clamp(21px, 5.2vw, 27px);
+`;
+
+const Person = styled.span`
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+`;
+
+const Role = styled.span`
+  color: ${({ theme }) => theme.color.accent};
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+`;
+
+const PersonName = styled.span`
+  color: ${({ theme }) => theme.color.text};
+  font-size: clamp(20px, 5.4vw, 25px);
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.09em;
+  line-height: 1.45;
+  white-space: nowrap;
 `;
 
 const Heart = styled.span`
+  align-self: end;
+  padding-bottom: 6px;
   color: ${({ theme }) => theme.color.accent};
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 400;
+  line-height: 1.45;
+`;
+
+const CeremonyInfo = styled.div`
+  padding: 28px 12px 36px;
+  color: ${({ theme }) => theme.color.text};
+  font-size: clamp(12px, 3.5vw, 15px);
+  font-weight: 400;
+  line-height: 1.85;
+  word-break: keep-all;
+
+  time {
+    display: block;
+  }
+`;
+
+const VenueInfo = styled.p`
+  margin: 0;
 `;
