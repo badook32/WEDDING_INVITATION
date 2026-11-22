@@ -20,7 +20,7 @@ const galleryByOriginalPosition: readonly GalleryPhoto[] = [
 ];
 
 /** 1-based positions in the original numbered photo board; edit this list to re-order. */
-const GALLERY_ORDER = [12, 1, 5, 6, 9, 7, 4, 10, 11, 14, 8, 3, 13, 2, 20, 21, 22, 26, 24, 27, 25, 19, 23, 18, 17, 16] as const;
+const GALLERY_ORDER = [12, 1, 5, 6, 9, 7, 4, 10, 11, 13, 2, 14, 8, 3, 20, 22, 26, 24, 25, 27, 23, 19, 17, 16] as const;
 export const invitation: Invitation = {
   couple: {
     groom: {

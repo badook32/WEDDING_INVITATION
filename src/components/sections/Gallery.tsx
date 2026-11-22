@@ -6,10 +6,10 @@ import { Section } from "@/components/layout/Section";
 import { invitation } from "@/data/invitation";
 import type { GalleryPhoto } from "@/types/invitation";
 
-// Row structure: first pair uses native image aspect ratios, then the requested 3/2-column grid.
-const ROW_COLUMNS = [2, 3, 2, 2, 3, 2, 3, 3, 3, 3] as const;
+// Ten rows in the requested order; first photo keeps its natural ratio, second uses a landscape crop.
+const ROW_COLUMNS = [2, 3, 2, 2, 2, 3, 2, 2, 3, 3] as const;
 
-/** 26 photos in the approved order; original photo 15 is intentionally excluded. */
+/** 24 photos in the approved order. Previous positions 16 and 24 are excluded. */
 export function Gallery() {
   const { gallery } = invitation;
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -41,7 +41,6 @@ export function Gallery() {
           <PhotoGrid
             key={rowIndex}
             $columns={columns}
-            $featured={rowIndex === 0}
             role="list"
             aria-label={`웨딩 사진 ${rowIndex + 1}행`}
           >
@@ -50,7 +49,7 @@ export function Gallery() {
                 key={photo.src}
                 photo={photo}
                 index={startIndex + index}
-                originalAspect={rowIndex === 0}
+                displayMode={rowIndex === 0 ? (index === 1 ? "landscape" : "natural") : "tile"}
                 onOpen={openAt}
               />
             ))}
@@ -72,11 +71,11 @@ export function Gallery() {
 }
 
 function PhotoTile({
-  photo, index, originalAspect, onOpen,
+  photo, index, displayMode, onOpen,
 }: {
   photo: GalleryPhoto;
   index: number;
-  originalAspect: boolean;
+  displayMode: "natural" | "landscape" | "tile";
   onOpen: (index: number) => void;
 }) {
   return (
@@ -89,7 +88,7 @@ function PhotoTile({
         <TileImage
           src={photo.src}
           alt={photo.alt}
-          $originalAspect={originalAspect}
+          $displayMode={displayMode}
           loading="lazy"
           decoding="async"
         />
@@ -192,12 +191,10 @@ const GalleryContainer = styled(Container)`
   padding-right: 0;
 `;
 
-const PhotoGrid = styled.ul<{ $columns: 2 | 3; $featured: boolean }>`
+const PhotoGrid = styled.ul<{ $columns: 2 | 3 }>`
   display: grid;
-  grid-template-columns: ${({ $columns, $featured }) =>
-    $featured
-      ? "minmax(0, 16fr) minmax(0, 9fr)"
-      : `repeat(${$columns}, minmax(0, 1fr))`};
+  grid-template-columns: repeat(${({ $columns }) => $columns}, minmax(0, 1fr));
+  align-items: start;
   gap: 4px;
   margin: 0 0 4px;
   padding: 0;
@@ -215,12 +212,14 @@ const TileButton = styled.button`
   cursor: zoom-in;
   overflow: hidden;
 `;
-const TileImage = styled.img<{ $originalAspect: boolean }>`
+const TileImage = styled.img<{ $displayMode: "natural" | "landscape" | "tile" }>`
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: ${({ $originalAspect }) => ($originalAspect ? "auto" : "3 / 4")};
-  object-fit: ${({ $originalAspect }) => ($originalAspect ? "contain" : "cover")};
+  aspect-ratio: ${({ $displayMode }) =>
+    $displayMode === "natural" ? "auto" : $displayMode === "landscape" ? "16 / 10" : "3 / 4"};
+  object-fit: ${({ $displayMode }) => ($displayMode === "natural" ? "contain" : "cover")};
+  object-position: center;
   transition: transform 250ms ease;
   ${TileButton}:hover & {
     transform: scale(1.025);
