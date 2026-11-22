@@ -24,7 +24,7 @@ describe("Share", () => {
   it("공유 버튼이 애니메이션 초기 투명 상태 없이 바로 표시된다", () => {
     renderWithProviders(<Share />);
     expect(screen.getByRole("button", { name: "공유하기" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "링크 복사" })).toBeVisible();
+    expect(screen.queryByRole("button", { name: "링크 복사" })).not.toBeInTheDocument();
   });
 
   it("지원되는 브라우저에서는 시스템 공유창을 호출한다", async () => {
@@ -43,10 +43,11 @@ describe("Share", () => {
     }));
   });
 
-  it("링크 복사 버튼은 공유창 지원 여부와 무관하게 동작한다", async () => {
+  it("공유하기 버튼만 표시되며 링크 복사 폴백은 유지한다", async () => {
     const user = userEvent.setup();
     renderWithProviders(<Share />);
-    await user.click(screen.getByRole("button", { name: "링크 복사" }));
+    expect(screen.queryByRole("button", { name: "링크 복사" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "공유하기" }));
     await waitFor(() => expect(writeText).toHaveBeenCalledWith(expect.stringMatching(/^http/)));
     expect(screen.getByRole("status")).toHaveTextContent("청첩장 링크가 복사되었습니다.");
   });

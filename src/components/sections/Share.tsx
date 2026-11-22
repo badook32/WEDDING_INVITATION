@@ -74,9 +74,6 @@ export function Share() {
             <ShareIcon />
             {sharing ? "공유창을 여는 중…" : "공유하기"}
           </PrimaryButton>
-          <SecondaryButton type="button" onClick={handleCopyLink}>
-            링크 복사
-          </SecondaryButton>
         </ShareActions>
       </Section>
     </Container>
@@ -134,24 +131,4 @@ const PrimaryButton = styled.button`
     opacity: 0.65;
     cursor: wait;
   }
-`;
-
-const SecondaryButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 8px 22px;
-  border: 1px solid #F2C0B5;
-  border-radius: 999px;
-  background-color: #ffffff;
-  color: #AA5141;
-  -webkit-text-fill-color: #AA5141;
-  font-size: 13px;
-  font-weight: 500;
-  opacity: 1;
-  visibility: visible;
-  cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
 `;

@@ -6,10 +6,10 @@ import { Section } from "@/components/layout/Section";
 import { invitation } from "@/data/invitation";
 import type { GalleryPhoto } from "@/types/invitation";
 
-// Row structure follows the user's sequence: 3,3,2,2,3,2,3,3,3,3.
-const ROW_COLUMNS = [3, 3, 2, 2, 3, 2, 3, 3, 3, 3] as const;
+// Row structure: first pair uses native image aspect ratios, then the requested 3/2-column grid.
+const ROW_COLUMNS = [2, 3, 2, 2, 3, 2, 3, 3, 3, 3] as const;
 
-/** All 27 photos appear in the chosen grid order; the viewer uses the same order. */
+/** 26 photos in the approved order; original photo 15 is intentionally excluded. */
 export function Gallery() {
   const { gallery } = invitation;
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -41,6 +41,7 @@ export function Gallery() {
           <PhotoGrid
             key={rowIndex}
             $columns={columns}
+            $featured={rowIndex === 0}
             role="list"
             aria-label={`웨딩 사진 ${rowIndex + 1}행`}
           >
@@ -49,6 +50,7 @@ export function Gallery() {
                 key={photo.src}
                 photo={photo}
                 index={startIndex + index}
+                originalAspect={rowIndex === 0}
                 onOpen={openAt}
               />
             ))}
@@ -70,10 +72,11 @@ export function Gallery() {
 }
 
 function PhotoTile({
-  photo, index, onOpen,
+  photo, index, originalAspect, onOpen,
 }: {
   photo: GalleryPhoto;
   index: number;
+  originalAspect: boolean;
   onOpen: (index: number) => void;
 }) {
   return (
@@ -83,7 +86,13 @@ function PhotoTile({
         onClick={() => onOpen(index)}
         aria-label={`${index + 1}번째 사진 크게 보기: ${photo.alt}`}
       >
-        <TileImage src={photo.src} alt={photo.alt} loading="lazy" decoding="async" />
+        <TileImage
+          src={photo.src}
+          alt={photo.alt}
+          $originalAspect={originalAspect}
+          loading="lazy"
+          decoding="async"
+        />
       </TileButton>
     </GridItem>
   );
@@ -183,9 +192,12 @@ const GalleryContainer = styled(Container)`
   padding-right: 0;
 `;
 
-const PhotoGrid = styled.ul<{ $columns: 2 | 3 }>`
+const PhotoGrid = styled.ul<{ $columns: 2 | 3; $featured: boolean }>`
   display: grid;
-  grid-template-columns: repeat(${({ $columns }) => $columns}, minmax(0, 1fr));
+  grid-template-columns: ${({ $columns, $featured }) =>
+    $featured
+      ? "minmax(0, 16fr) minmax(0, 9fr)"
+      : `repeat(${$columns}, minmax(0, 1fr))`};
   gap: 4px;
   margin: 0 0 4px;
   padding: 0;
@@ -203,11 +215,12 @@ const TileButton = styled.button`
   cursor: zoom-in;
   overflow: hidden;
 `;
-const TileImage = styled.img`
+const TileImage = styled.img<{ $originalAspect: boolean }>`
   display: block;
   width: 100%;
-  aspect-ratio: 3 / 4;
-  object-fit: cover;
+  height: auto;
+  aspect-ratio: ${({ $originalAspect }) => ($originalAspect ? "auto" : "3 / 4")};
+  object-fit: ${({ $originalAspect }) => ($originalAspect ? "contain" : "cover")};
   transition: transform 250ms ease;
   ${TileButton}:hover & {
     transform: scale(1.025);
