@@ -121,19 +121,21 @@ function SpeakerIcon({ muted }: { muted: boolean }) {
 
 const ToggleButton = styled.button`
   position: fixed;
-  top: ({ theme }) => theme.space[4];
-  right: ({ theme }) => theme.space[4];
-  z-index: ({ theme }) => theme.zIndex.floating;
+  top: max(12px, env(safe-area-inset-top, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  left: auto;
+  bottom: auto;
+  z-index: 50;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 44px;
   height: 44px;
   padding: 0;
-  border: 1px solid ({ theme }) => theme.color.border;
+  border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.92);
-  color: ({ theme }) => theme.color.accent;
+  color: #AF5847;
   cursor: pointer;
   -webkit-appearance: none;
   appearance: none;

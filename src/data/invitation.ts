@@ -1,9 +1,26 @@
-import type { Invitation } from "@/types/invitation";
+import type { GalleryPhoto, Invitation } from "@/types/invitation";
 
 /**
  * 2027년 2월 27일 청첩장 1차 공개 초안.
  * 초안에서 제공된 축의금 계좌 중 5개를 적용하고, 신랑 아버지 계좌는 비공개한다.
  */
+const galleryByOriginalPosition: readonly GalleryPhoto[] = [
+    ...Array.from({ length: 15 }, (_, index) => ({
+      src: `/wedding/studio-${String(index + 1).padStart(2, "0")}.webp`,
+      alt: `스튜디오 웨딩 사진 ${index + 1}`,
+    })),
+    ...Array.from({ length: 9 }, (_, index) => ({
+      src: `/wedding/soyouu-${String(index + 1).padStart(2, "0")}.webp`,
+      alt: `소유 필름 웨딩 사진 ${index + 1}`,
+    })),
+    ...Array.from({ length: 3 }, (_, index) => ({
+      src: `/wedding/snap-${String(index + 1).padStart(2, "0")}.webp`,
+      alt: `스냅 웨딩 사진 ${index + 1}`,
+    })),
+];
+
+/** 1-based positions in the original numbered photo board; edit this list to re-order. */
+const GALLERY_ORDER = [14, 8, 3, 4, 6, 9, 7, 5, 10, 11, 12, 1, 15, 13, 2, 21, 20, 22, 26, 27, 24, 25, 19, 23, 18, 16, 17] as const;
 export const invitation: Invitation = {
   couple: {
     groom: {
@@ -64,18 +81,11 @@ export const invitation: Invitation = {
     ],
     source: "나태주, 「선물」",
   },
-  gallery: [
-    ...Array.from({ length: 15 }, (_, index) => ({
-      src: `/wedding/studio-${String(index + 1).padStart(2, "0")}.webp`,
-      alt: `스튜디오 웨딩 사진 ${index + 1}`,
-    })),
-    ...Array.from({ length: 9 }, (_, index) => ({
-      src: `/wedding/soyouu-${String(index + 1).padStart(2, "0")}.webp`,
-      alt: `소유 필름 웨딩 사진 ${index + 1}`,
-    })),
-    ...Array.from({ length: 3 }, (_, index) => ({
-      src: `/wedding/snap-${String(index + 1).padStart(2, "0")}.webp`,
-      alt: `스냅 웨딩 사진 ${index + 1}`,
-    })),
-  ],
+  gallery: GALLERY_ORDER.map((originalPosition) => {
+    const photo = galleryByOriginalPosition[originalPosition - 1];
+    if (photo === undefined) {
+      throw new Error(`갤러리 원본 사진 ${originalPosition}번을 찾을 수 없습니다.`);
+    }
+    return photo;
+  }),
 };

@@ -91,7 +91,7 @@ const QuoteLines = styled.blockquote`
   flex-direction: column;
   gap: 4px;
   margin: 0;
-  color: #b14939;
+  color: #D87968;
   font-size: clamp(12px, 3.35vw, 15px);
   line-height: 2;
   word-break: keep-all;
@@ -104,7 +104,7 @@ const QuoteSpace = styled.span`
 
 const QuoteCaption = styled.figcaption`
   margin-top: 17px;
-  color: #b14939;
+  color: #C46C5E;
   font-size: 12px;
   cite { font-style: normal; }
 `;

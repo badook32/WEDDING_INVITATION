@@ -95,9 +95,9 @@ const ShareActions = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: ({ theme }) => theme.space[3];
+  gap: 12px;
   width: 100%;
-  max-width: 340px;
+  max-width: 310px;
   margin: 0 auto 48px;
 `;
 
@@ -107,13 +107,13 @@ const PrimaryButton = styled.button`
   justify-content: center;
   gap: 10px;
   width: 100%;
-  min-height: 54px;
-  padding: 14px 20px;
-  border: 1px solid ({ theme }) => theme.color.accent;
+  min-height: 50px;
+  padding: 12px 20px;
+  border: 0;
   border-radius: 999px;
-  background-color: ({ theme }) => theme.color.accent;
-  color: #ffffff;
-  -webkit-text-fill-color: #ffffff;
+  background-color: #E58A78;
+  color: #322725;
+  -webkit-text-fill-color: #322725;
   font-size: 15px;
   font-weight: 600;
   line-height: 1.4;
@@ -121,13 +121,14 @@ const PrimaryButton = styled.button`
   opacity: 1;
   visibility: visible;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   -webkit-appearance: none;
   appearance: none;
-  box-shadow: 0 6px 18px rgba(196, 82, 61, 0.13);
+  box-shadow: none;
   transition: background-color 150ms ease;
 
   &:hover:not(:disabled) {
-    background-color: #ad4734;
+    background-color: #DE806F;
   }
   &:disabled {
     opacity: 0.65;
@@ -141,11 +142,11 @@ const SecondaryButton = styled.button`
   justify-content: center;
   min-height: 44px;
   padding: 8px 22px;
-  border: 1px solid #edb7ab;
+  border: 1px solid #F2C0B5;
   border-radius: 999px;
   background-color: #ffffff;
-  color: ({ theme }) => theme.color.accent;
-  -webkit-text-fill-color: ({ theme }) => theme.color.accent;
+  color: #AA5141;
+  -webkit-text-fill-color: #AA5141;
   font-size: 13px;
   font-weight: 500;
   opacity: 1;

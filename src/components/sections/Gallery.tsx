@@ -6,14 +6,10 @@ import { Section } from "@/components/layout/Section";
 import { invitation } from "@/data/invitation";
 import type { GalleryPhoto } from "@/types/invitation";
 
-const STUDIO_COUNT = 15;
-const SOYOUU_COUNT = 9;
+// Row structure follows the user's sequence: 3,3,2,2,3,2,3,3,3,3.
+const ROW_COLUMNS = [3, 3, 2, 2, 3, 2, 3, 3, 3, 3] as const;
 
-/**
- * 전체 27장을 즉시 확인할 수 있는 포토월.
- * 스튜디오 9장(3열) + 6장(2열), soyouu 9장(3열), snap 3장(3열).
- * 썸네일을 선택하면 전체 27장을 순서대로 스와이프할 수 있다.
- */
+/** All 27 photos appear in the chosen grid order; the viewer uses the same order. */
 export function Gallery() {
   const { gallery } = invitation;
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -31,38 +27,33 @@ export function Gallery() {
     requestAnimationFrame(() => previousFocus.current?.focus());
   }, []);
 
-  const studio = gallery.slice(0, STUDIO_COUNT);
-  const soyouu = gallery.slice(STUDIO_COUNT, STUDIO_COUNT + SOYOUU_COUNT);
-  const snap = gallery.slice(STUDIO_COUNT + SOYOUU_COUNT);
+  let photoOffset = 0;
+  const rows = ROW_COLUMNS.map((columns) => {
+    const startIndex = photoOffset;
+    photoOffset += columns;
+    return { columns, startIndex, photos: gallery.slice(startIndex, photoOffset) };
+  });
 
   return (
     <GalleryContainer>
       <Section title="We’re Getting Married">
-        <PhotoGrid $columns={3} role="list" aria-label="스튜디오 웨딩 사진 앞부분">
-          {studio.slice(0, 9).map((photo, i) => (
-            <PhotoTile key={photo.src} photo={photo} index={i} onOpen={openAt} />
-          ))}
-        </PhotoGrid>
-        <PhotoGrid $columns={2} role="list" aria-label="스튜디오 웨딩 사진 뒷부분">
-          {studio.slice(9).map((photo, i) => (
-            <PhotoTile key={photo.src} photo={photo} index={i + 9} onOpen={openAt} />
-          ))}
-        </PhotoGrid>
-        <PhotoGrid $columns={3} role="list" aria-label="소유 필름 사진">
-          {soyouu.map((photo, i) => (
-            <PhotoTile key={photo.src} photo={photo} index={i + STUDIO_COUNT} onOpen={openAt} />
-          ))}
-        </PhotoGrid>
-        <PhotoGrid $columns={3} role="list" aria-label="스냅 사진">
-          {snap.map((photo, i) => (
-            <PhotoTile
-              key={photo.src}
-              photo={photo}
-              index={i + STUDIO_COUNT + SOYOUU_COUNT}
-              onOpen={openAt}
-            />
-          ))}
-        </PhotoGrid>
+        {rows.map(({ columns, startIndex, photos }, rowIndex) => (
+          <PhotoGrid
+            key={rowIndex}
+            $columns={columns}
+            role="list"
+            aria-label={`웨딩 사진 ${rowIndex + 1}행`}
+          >
+            {photos.map((photo, index) => (
+              <PhotoTile
+                key={photo.src}
+                photo={photo}
+                index={startIndex + index}
+                onOpen={openAt}
+              />
+            ))}
+          </PhotoGrid>
+        ))}
         <Hint>클릭하면 이미지를 크게 보실 수 있습니다.</Hint>
       </Section>
       {mounted && activeIndex !== null && createPortal(
