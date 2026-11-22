@@ -6,10 +6,11 @@ import { Section } from "@/components/layout/Section";
 import { invitation } from "@/data/invitation";
 import type { GalleryPhoto } from "@/types/invitation";
 
-// Ten rows in the requested order; first photo keeps its natural ratio, second uses a landscape crop.
-const ROW_COLUMNS = [2, 3, 2, 2, 2, 3, 2, 2, 3, 3] as const;
+// Rows are specified by the user's current mobile gallery positions (not the old contact-sheet positions).
+// Featured first row uses photos 15, 01, 12 from the ORIGINAL board1 catalog.
+const ROW_COLUMNS = [3, 3, 2, 4, 3, 4, 2, 3] as const;
 
-/** 24 photos in the approved order. Previous positions 16 and 24 are excluded. */
+/** 24 photos in the specified 8 rows. Position 22 from the previous mobile gallery is excluded. */
 export function Gallery() {
   const { gallery } = invitation;
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -49,7 +50,7 @@ export function Gallery() {
                 key={photo.src}
                 photo={photo}
                 index={startIndex + index}
-                displayMode={rowIndex === 0 ? (index === 1 ? "landscape" : "natural") : "tile"}
+                displayMode={rowIndex === 0 ? "natural" : "tile"}
                 onOpen={openAt}
               />
             ))}
@@ -75,7 +76,7 @@ function PhotoTile({
 }: {
   photo: GalleryPhoto;
   index: number;
-  displayMode: "natural" | "landscape" | "tile";
+  displayMode: "natural" | "tile";
   onOpen: (index: number) => void;
 }) {
   return (
@@ -212,12 +213,11 @@ const TileButton = styled.button`
   cursor: zoom-in;
   overflow: hidden;
 `;
-const TileImage = styled.img<{ $displayMode: "natural" | "landscape" | "tile" }>`
+const TileImage = styled.img<{ $displayMode: "natural" | "tile" }>`
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: ${({ $displayMode }) =>
-    $displayMode === "natural" ? "auto" : $displayMode === "landscape" ? "16 / 10" : "3 / 4"};
+  aspect-ratio: ${({ $displayMode }) => ($displayMode === "natural" ? "auto" : "3 / 4")};
   object-fit: ${({ $displayMode }) => ($displayMode === "natural" ? "contain" : "cover")};
   object-position: center;
   transition: transform 250ms ease;
