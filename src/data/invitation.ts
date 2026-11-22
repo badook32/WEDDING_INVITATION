@@ -14,8 +14,13 @@ const galleryByOriginalPosition: readonly GalleryPhoto[] = [
       alt: `소유 필름 웨딩 사진 ${index + 1}`,
     })),
     ...Array.from({ length: 3 }, (_, index) => ({
-      src: `/wedding/snap-${String(index + 1).padStart(2, "0")}.webp`,
-      alt: `스냅 웨딩 사진 ${index + 1}`,
+      // Current gallery position 19 maps to the original snap-01 photo.
+      // Keep the previous snap-01.webp file intact for rollback.
+      src:
+        index === 0
+          ? "/wedding/gallery19-DSCF0591.jpg"
+          : `/wedding/snap-${String(index + 1).padStart(2, "0")}.webp`,
+      alt: index === 0 ? "야외에서 함께 서 있는 신랑과 신부" : `스냅 웨딩 사진 ${index + 1}`,
     })),
 ];
 

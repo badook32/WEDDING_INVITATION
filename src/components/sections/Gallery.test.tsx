@@ -27,6 +27,15 @@ describe("Gallery", () => {
     // Previous mobile position 13 = original board1 photo 14 is excluded.
     expect(screen.queryByRole("button", { name: /스튜디오 웨딩 사진 14$/ })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "23번째 사진 크게 보기: 소유 필름 웨딩 사진 1" })).toBeInTheDocument();
+
+    // Only the image at the current gallery position 19 is replaced.
+    const photo19 = screen.getByRole("button", {
+      name: "19번째 사진 크게 보기: 야외에서 함께 서 있는 신랑과 신부",
+    });
+    expect(within(photo19).getByRole("img")).toHaveAttribute(
+      "src",
+      "/wedding/gallery19-DSCF0591.jpg",
+    );
   });
 
   it("썸네일 확대 후 오른쪽 화살표 및 닫기 버튼으로 조작할 수 있다", async () => {
