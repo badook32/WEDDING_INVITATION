@@ -64,7 +64,7 @@ const QuoteIntro = styled.figure`
   position: relative;
   width: 100%;
   max-width: 355px;
-  margin: 44px auto 45px;
+  margin: 11px auto 45px;
   padding: 41px 19px 29px;
   border: 1px solid #f7ddd5;
   border-radius: 3px 3px 9px 9px;
