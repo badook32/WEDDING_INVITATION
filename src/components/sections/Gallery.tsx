@@ -7,10 +7,10 @@ import { invitation } from "@/data/invitation";
 import type { GalleryPhoto } from "@/types/invitation";
 
 // Rows are specified by the user's current mobile gallery positions (not the old contact-sheet positions).
-// Featured first row uses photos 15, 01, 12 from the ORIGINAL board1 catalog.
-const ROW_COLUMNS = [3, 3, 2, 4, 3, 4, 2, 3] as const;
+// Featured first row uses the previous mobile positions 1 and 3; both are shown uncropped.
+const ROW_COLUMNS = [2, 3, 2, 4, 3, 4, 2, 3] as const;
 
-/** 24 photos in the specified 8 rows. Position 22 from the previous mobile gallery is excluded. */
+/** 23 photos in eight rows; old mobile position 13 is excluded. */
 export function Gallery() {
   const { gallery } = invitation;
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -50,7 +50,7 @@ export function Gallery() {
                 key={photo.src}
                 photo={photo}
                 index={startIndex + index}
-                displayMode={rowIndex === 0 ? (index === 1 ? "portraitScaled" : "natural") : "tile"}
+                displayMode={rowIndex === 0 ? "natural" : "tile"}
                 onOpen={openAt}
               />
             ))}
@@ -76,7 +76,7 @@ function PhotoTile({
 }: {
   photo: GalleryPhoto;
   index: number;
-  displayMode: "natural" | "portraitScaled" | "tile";
+  displayMode: "natural" | "tile";
   onOpen: (index: number) => void;
 }) {
   return (
@@ -213,13 +213,10 @@ const TileButton = styled.button`
   cursor: zoom-in;
   overflow: hidden;
 `;
-const TileImage = styled.img<{ $displayMode: "natural" | "portraitScaled" | "tile" }>`
+const TileImage = styled.img<{ $displayMode: "natural" | "tile" }>`
   display: block;
-  /* Top row: landscape photos are 4:3, portrait is 3:4.
-     A 56.25% portrait width gives the same displayed height without cropping. */
-  width: ${({ $displayMode }) => ($displayMode === "portraitScaled" ? "56.25%" : "100%")};
+  width: 100%;
   height: auto;
-  margin: 0 auto;
   aspect-ratio: ${({ $displayMode }) => ($displayMode === "tile" ? "3 / 4" : "auto")};
   object-fit: ${({ $displayMode }) => ($displayMode === "tile" ? "cover" : "contain")};
   object-position: center;
