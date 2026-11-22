@@ -2,42 +2,19 @@ import { useState } from "react";
 import styled from "styled-components";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
-import { Button, Reveal, useToast } from "@/components/ui";
+import { useToast } from "@/components/ui";
 import { getShareUrl, siteConfig, toAbsoluteUrl } from "@/config/site";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { loadKakaoSdk, shareInvitation } from "@/lib/kakao";
 
-/** 청첩장 공유. */
+/**
+ * 공유 버튼은 IntersectionObserver 기반 Reveal 안에 두지 않는다.
+ * 일부 Android WebView에서 opacity:0 상태로 남아 클릭만 가능한 문제를 방지한다.
+ */
 export function Share() {
-
   const { copy } = useCopyToClipboard();
   const { showToast } = useToast();
   const [sharing, setSharing] = useState(false);
-
-  const kakaoKey = siteConfig.kakao.javaScriptKey;
-
-  const handleKakaoShare = async () => {
-    if (kakaoKey === null) return;
-
-    setSharing(true);
-    try {
-      const kakao = await loadKakaoSdk(kakaoKey);
-      shareInvitation(kakao, {
-        title: siteConfig.title,
-        description: siteConfig.description,
-        imageUrl: toAbsoluteUrl(siteConfig.ogImagePath),
-        url: getShareUrl(),
-      });
-    } catch {
-      /*
-       * 기존 구현은 SDK가 없으면 조용히 아무 일도 하지 않았다.
-       * 사용자는 버튼을 눌렀는데 반응이 없으니 고장인지 알 수 없다.
-       */
-      showToast("카카오톡 공유를 열지 못했습니다. 링크 복사를 이용해 주세요.");
-    } finally {
-      setSharing(false);
-    }
-  };
 
   const handleCopyLink = async () => {
     const copied = await copy(getShareUrl());
@@ -48,81 +25,132 @@ export function Share() {
     );
   };
 
+  const handleShare = async () => {
+    if (sharing) return;
+    setSharing(true);
+    try {
+      // Android/iOS browsers with Web Share API: use the native share sheet.
+      if (typeof navigator.share === "function") {
+        try {
+          await navigator.share({
+            title: siteConfig.title,
+            text: siteConfig.description,
+            url: getShareUrl(),
+          });
+          return;
+        } catch (error) {
+          // Closing the share sheet intentionally is not a sharing failure.
+          if (error instanceof Error && error.name === "AbortError") return;
+        }
+      }
+
+      // Fallback for browsers without Web Share API.
+      const kakaoKey = siteConfig.kakao.javaScriptKey;
+      if (kakaoKey !== null) {
+        try {
+          const kakao = await loadKakaoSdk(kakaoKey);
+          shareInvitation(kakao, {
+            title: siteConfig.title,
+            description: siteConfig.description,
+            imageUrl: toAbsoluteUrl(siteConfig.ogImagePath),
+            url: getShareUrl(),
+          });
+          return;
+        } catch {
+          // Keep link copy as the final working fallback.
+        }
+      }
+      await handleCopyLink();
+    } finally {
+      setSharing(false);
+    }
+  };
+
   return (
     <Container>
       <Section title="청첩장 공유하기">
-        <Reveal>
-          <Buttons>
-            {/*
-              키가 설정되지 않았으면 버튼 자체를 그리지 않는다.
-              눌러도 동작하지 않는 버튼을 남겨 두는 것보다 낫다.
-            */}
-            {kakaoKey !== null && (
-              <Button
-                variant="kakao"
-                fullWidth
-                onClick={handleKakaoShare}
-                disabled={sharing}
-                icon={<TalkIcon />}
-              >
-                {sharing ? "공유창을 여는 중…" : "카카오톡으로 공유하기"}
-              </Button>
-            )}
-
-            <Button
-              variant="outline"
-              fullWidth
-              onClick={handleCopyLink}
-              icon={<LinkIcon />}
-            >
-              링크로 공유하기
-            </Button>
-          </Buttons>
-        </Reveal>
+        <ShareActions>
+          <PrimaryButton type="button" onClick={handleShare} disabled={sharing}>
+            <ShareIcon />
+            {sharing ? "공유창을 여는 중…" : "공유하기"}
+          </PrimaryButton>
+          <SecondaryButton type="button" onClick={handleCopyLink}>
+            링크 복사
+          </SecondaryButton>
+        </ShareActions>
       </Section>
     </Container>
   );
 }
 
-function TalkIcon() {
+function ShareIcon() {
   return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path
-        fill="currentColor"
-        d="M12 3C6.99 3 3 6.22 3 10.19c0 2.52 1.68 4.73 4.2 6L6.3 20.1c-.09.33.27.6.56.42l4.62-3.05c.17.01.35.02.52.02 5.01 0 9-3.22 9-7.2S17.01 3 12 3Z"
-      />
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+      <path d="M12 16V3m0 0L7 8m5-5 5 5M5 13v5a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-function LinkIcon() {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path
-        d="M10 13a4 4 0 0 0 5.66 0l2.83-2.83a4 4 0 0 0-5.66-5.66L11.5 5.9M14 11a4 4 0 0 0-5.66 0L5.5 13.83a4 4 0 0 0 5.66 5.66l1.33-1.33"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-const Buttons = styled.div`
+const ShareActions = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.space[3]};
+  align-items: center;
+  gap: ({ theme }) => theme.space[3];
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto 48px;
+`;
+
+const PrimaryButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 54px;
+  padding: 14px 20px;
+  border: 1px solid ({ theme }) => theme.color.accent;
+  border-radius: 999px;
+  background-color: ({ theme }) => theme.color.accent;
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  opacity: 1;
+  visibility: visible;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow: 0 6px 18px rgba(196, 82, 61, 0.13);
+  transition: background-color 150ms ease;
+
+  &:hover:not(:disabled) {
+    background-color: #ad4734;
+  }
+  &:disabled {
+    opacity: 0.65;
+    cursor: wait;
+  }
+`;
+
+const SecondaryButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 22px;
+  border: 1px solid #edb7ab;
+  border-radius: 999px;
+  background-color: #ffffff;
+  color: ({ theme }) => theme.color.accent;
+  -webkit-text-fill-color: ({ theme }) => theme.color.accent;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 1;
+  visibility: visible;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
 `;

@@ -61,8 +61,29 @@ const GreetingPanel = styled.section`
 `;
 
 const QuoteIntro = styled.figure`
-  margin: 0;
-  padding: 47px 0 44px;
+  position: relative;
+  width: 100%;
+  max-width: 355px;
+  margin: 44px auto 45px;
+  padding: 41px 19px 29px;
+  border: 1px solid #f7ddd5;
+  border-radius: 3px 3px 9px 9px;
+  background: #fff1ec;
+  box-shadow: 0 9px 21px rgba(196, 82, 61, 0.09);
+  transform: rotate(-0.4deg);
+
+  /* 마스킹 테이프 느낌: 실제 이미지 없이 CSS만 사용 */
+  &::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    width: 79px;
+    height: 20px;
+    transform: translateX(-50%) rotate(-3deg);
+    border: 1px solid rgba(207, 138, 117, 0.17);
+    background: rgba(247, 198, 185, 0.68);
+  }
 `;
 
 const QuoteLines = styled.blockquote`
@@ -70,7 +91,7 @@ const QuoteLines = styled.blockquote`
   flex-direction: column;
   gap: 4px;
   margin: 0;
-  color: ${({ theme }) => theme.color.text};
+  color: #b14939;
   font-size: clamp(12px, 3.35vw, 15px);
   line-height: 2;
   word-break: keep-all;
@@ -83,7 +104,7 @@ const QuoteSpace = styled.span`
 
 const QuoteCaption = styled.figcaption`
   margin-top: 17px;
-  color: ${({ theme }) => theme.color.textMuted};
+  color: #b14939;
   font-size: 12px;
   cite { font-style: normal; }
 `;
