@@ -192,7 +192,7 @@ const GalleryContainer = styled(Container)`
   padding-right: 0;
 `;
 
-const PhotoGrid = styled.ul<{ $columns: 2 | 3 }>`
+const PhotoGrid = styled.ul<{ $columns: 2 | 3 | 4 }>`
   display: grid;
   grid-template-columns: repeat(${({ $columns }) => $columns}, minmax(0, 1fr));
   align-items: start;
