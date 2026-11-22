@@ -50,7 +50,7 @@ export function Gallery() {
                 key={photo.src}
                 photo={photo}
                 index={startIndex + index}
-                displayMode={rowIndex === 0 ? "natural" : "tile"}
+                displayMode="tile"
                 onOpen={openAt}
               />
             ))}
