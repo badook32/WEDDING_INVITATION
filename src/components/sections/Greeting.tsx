@@ -3,10 +3,7 @@ import { Container } from "@/components/layout/Container";
 import { Reveal } from "@/components/ui";
 import { invitation } from "@/data/invitation";
 
-/** 문단이 차례로 떠오르도록 주는 간격. */
-const STAGGER_DELAY_MS = 80;
-
-/** 인사말과 혼주 소개. */
+/** 인용문, 인사말, 혼주 소개. 꽃 장식은 사용하지 않는다. */
 export function Greeting() {
   const { greeting, couple, quote } = invitation;
 
@@ -15,25 +12,29 @@ export function Greeting() {
       <GreetingPanel aria-labelledby="greeting-heading">
         <QuoteIntro>
           <QuoteLines>
-            {quote.lines.map((line) => (
-              <span key={line}>{line}</span>
-            ))}
+            {quote.lines.map((line, index) =>
+              line === "" ? (
+                <QuoteSpace key={`space-${index}`} aria-hidden="true" />
+              ) : (
+                <span key={`${index}-${line}`}>{line}</span>
+              ),
+            )}
           </QuoteLines>
           <QuoteCaption>
             <cite>— {quote.source}</cite>
           </QuoteCaption>
         </QuoteIntro>
-        <Flower aria-hidden="true">✿</Flower>
+
         <GreetingHeading id="greeting-heading">{greeting.heading}</GreetingHeading>
         <Message>
           {greeting.paragraphs.map((paragraph, index) => (
-            <Reveal key={paragraph} delay={index * STAGGER_DELAY_MS}>
+            <Reveal key={paragraph} delay={index * 80}>
               <GreetingParagraph>{paragraph}</GreetingParagraph>
             </Reveal>
           ))}
         </Message>
 
-        <Reveal delay={greeting.paragraphs.length * STAGGER_DELAY_MS}>
+        <Reveal delay={greeting.paragraphs.length * 80}>
           <Families role="list">
             <li>
               <ParentNames>{couple.groom.father.name} · {couple.groom.mother.name}</ParentNames>
@@ -54,39 +55,72 @@ export function Greeting() {
   );
 }
 
-const Flower = styled.div`
-  margin: 26px 0 14px;
-  color: #a8434a;
-  font-size: 17px;
+const GreetingPanel = styled.section`
+  padding: 8px 0 27px;
+  text-align: center;
+`;
+
+const QuoteIntro = styled.figure`
+  margin: 0;
+  padding: 47px 0 44px;
+`;
+
+const QuoteLines = styled.blockquote`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  color: ${({ theme }) => theme.color.text};
+  font-size: clamp(12px, 3.35vw, 15px);
+  line-height: 2;
+  word-break: keep-all;
+`;
+
+const QuoteSpace = styled.span`
+  display: block;
+  height: 18px;
+`;
+
+const QuoteCaption = styled.figcaption`
+  margin-top: 17px;
+  color: ${({ theme }) => theme.color.textMuted};
+  font-size: 12px;
+  cite { font-style: normal; }
 `;
 
 const GreetingHeading = styled.h2`
   margin: 0 0 28px;
-  color: #a8434a;
-  font-size: 18px;
+  color: ${({ theme }) => theme.color.accent};
+  font-size: 20px;
   font-weight: 600;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.07em;
 `;
 
 const Message = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.space[6]};
-  margin-bottom: ${({ theme }) => theme.space[10]};
+  gap: 22px;
+  margin-bottom: 38px;
   color: ${({ theme }) => theme.color.textMuted};
-  font-size: ${({ theme }) => theme.fontSize.sm};
   text-align: center;
+`;
+
+const GreetingParagraph = styled.p`
+  margin: 0;
+  white-space: pre-line;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  font-size: clamp(12px, 3.4vw, 14px);
+  line-height: 2.1;
+  letter-spacing: 0.01em;
 `;
 
 const Families = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-width: 345px;
-  margin: 0 auto;
-  padding: 28px 0 0;
-  border-top: 1px solid rgba(100, 88, 80, 0.18);
-  color: #403c3b;
+  padding: 29px 0 0;
+  border-top: 1px solid ${({ theme }) => theme.color.border};
   list-style: none;
 
   li {
@@ -100,70 +134,24 @@ const Families = styled.ul`
   }
 `;
 
-const GreetingPanel = styled.section`
-  margin-top: 10px;
-  padding: 0 10px 36px;
-  border-top: 1px solid rgba(100, 88, 80, 0.14);
-  border-bottom: 1px solid rgba(100, 88, 80, 0.14);
-  background: rgba(255, 255, 255, 0.55);
-  text-align: center;
-`;
-
-const QuoteIntro = styled.figure`
-  margin: 0;
-  padding: 41px 4px 28px;
-  border-bottom: 1px solid rgba(100, 88, 80, 0.14);
-`;
-
-const QuoteLines = styled.blockquote`
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin: 0;
-  color: #6e6763;
-  font-size: clamp(12px, 3.55vw, 14px);
-  font-style: italic;
-  line-height: 1.95;
-  word-break: keep-all;
-`;
-
-const QuoteCaption = styled.figcaption`
-  margin-top: 12px;
-  color: #8b827e;
-  font-size: 12px;
-  cite { font-style: normal; }
-`;
-
-const GreetingParagraph = styled.p`
-  margin: 0;
-  white-space: pre-line;
-  word-break: keep-all;
-  overflow-wrap: anywhere;
-  font-size: clamp(12px, 3.55vw, 15px);
-  line-height: 2.1;
-  letter-spacing: 0.02em;
-`;
-
 const ParentNames = styled.span`
+  color: ${({ theme }) => theme.color.text};
   font-weight: 500;
   white-space: nowrap;
 `;
-
 const ChildOrder = styled.span`
-  color: #7d7470;
+  color: ${({ theme }) => theme.color.textMuted};
   font-size: 12px;
   white-space: nowrap;
 `;
-
 const FamilyRole = styled.span`
-  color: #a8434a;
+  color: ${({ theme }) => theme.color.accent};
   font-size: 12px;
   white-space: nowrap;
 `;
-
 const PartnerName = styled.strong`
+  color: ${({ theme }) => theme.color.text};
   font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   white-space: nowrap;
 `;

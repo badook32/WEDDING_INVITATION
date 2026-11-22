@@ -1,123 +1,65 @@
 import styled from "styled-components";
-import BackgroundPoster from "@/assets/BackgroundVideoPoster.webp";
-import { Container } from "@/components/layout/Container";
 import { invitation } from "@/data/invitation";
-import { formatCeremonyDateTime, toDateTimeAttribute } from "@/lib/ceremony";
 
-/**
- * 첫 화면. 신랑·신부 이름과 예식 일시를 알린다.
- *
- * 예식 일시 문자열은 데이터의 ISO 시각에서 파생된다. 요일을 사람이 적지
- * 않으므로 날짜와 요일이 어긋날 수 없다.
- */
+/** 메인 사진은 별도 최적화한 SCV01144-1 색감 원본을 사용한다. */
 export function Hero() {
-  const { couple, ceremony, venue } = invitation;
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Seoul",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    weekday: "long",
-  }).formatToParts(new Date(ceremony.startsAt));
-  const part = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find((item) => item.type === type)?.value ?? "";
-  const coverDateLabel = `${part("month").toUpperCase()} ${part("day")} ${part("year")} · ${part("weekday").toUpperCase()}`;
+  const { couple } = invitation;
 
   return (
     <Header>
-      <Container>
-        <Eyebrow>{coverDateLabel}</Eyebrow>
-        <HeroTitle>WEDDING DAY</HeroTitle>
-        <CoverPhoto
-          src={BackgroundPoster}
-          alt="한옥 앞에 함께 서 있는 신랑과 신부"
-          width={1536}
-          height={1152}
-          fetchPriority="high"
-        />
-        <Names>
-          <span>{couple.groom.name}</span>
-          <And>그리고</And>
-          <span>{couple.bride.name}</span>
-        </Names>
-        <Schedule>
-          <time dateTime={toDateTimeAttribute(ceremony.startsAt)}>
-            {formatCeremonyDateTime(ceremony.startsAt)}
-          </time>
-          <br />
-          {venue.name} {venue.hall}
-        </Schedule>
-      </Container>
+      <CoverPhoto
+        src="/wedding/hero.webp"
+        alt="신랑과 신부가 함께 웨딩 케이크를 들고 있는 모습"
+        width={1400}
+        height={1867}
+        fetchPriority="high"
+      />
+      <Names>
+        <span>{couple.groom.name}</span>
+        <Heart aria-label="하트">♥</Heart>
+        <span>{couple.bride.name}</span>
+      </Names>
     </Header>
   );
 }
 
 const Header = styled.header`
-  padding-top: ${({ theme }) => theme.space[12]};
+  width: 100%;
+  max-width: ${({ theme }) => theme.layout.maxWidth};
+  margin: 0 auto;
   text-align: center;
-  animation: fade-in ${({ theme }) => theme.motion.duration.slow} ease-out both;
-
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-`;
-
-const Eyebrow = styled.p`
-  margin: 0 0 4px;
-  color: #79716e;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-`;
-
-const HeroTitle = styled.h1`
-  margin: 0 0 26px;
-  color: #a8434a;
-  font-size: clamp(27px, 7.5vw, 36px);
-  font-weight: 400;
-  letter-spacing: 0.16em;
-`;
-
-const Names = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin: 28px 0 14px;
-  color: #3e3a39;
-  font-size: clamp(18px, 5vw, 23px);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-`;
-
-const And = styled.span`
-  color: #a8434a;
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: normal;
-`;
-
-const Schedule = styled.p`
-  margin: 0 0 22px;
-  color: #79716e;
-  font-size: 13px;
-  line-height: 1.9;
 `;
 
 const CoverPhoto = styled.img`
   display: block;
   width: 100%;
-  max-width: 405px;
   height: auto;
-  aspect-ratio: 4 / 3;
-  object-fit: contain;
-  margin: 0 auto;
-  border-radius: 14px;
-  background-color: #efebe9;
-  box-shadow: 0 8px 28px rgba(62, 58, 57, 0.09);
+  max-height: 83svh;
+  min-height: 400px;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: center 43%;
+  background-color: #f4f2ef;
+
+  @media (max-height: 600px) {
+    min-height: 0;
+  }
+`;
+
+const Names = styled.h1`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 29px 12px 13px;
+  color: ${({ theme }) => theme.color.text};
+  font-size: clamp(21px, 5.2vw, 27px);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+`;
+
+const Heart = styled.span`
+  color: ${({ theme }) => theme.color.accent};
+  font-size: 18px;
+  font-weight: 400;
 `;

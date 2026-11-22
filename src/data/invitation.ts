@@ -1,9 +1,3 @@
-import GalleryPhoto1 from "@/assets/Gallery_Photo_1.webp";
-import GalleryPhoto2 from "@/assets/Gallery_Photo_2.webp";
-import GalleryPhoto3 from "@/assets/Gallery_Photo_3.webp";
-import GalleryPhoto4 from "@/assets/Gallery_Photo_4.webp";
-import GalleryPhoto5 from "@/assets/Gallery_Photo_5.webp";
-import GalleryPhoto6 from "@/assets/Gallery_Photo_6.webp";
 import type { Invitation } from "@/types/invitation";
 
 /**
@@ -62,18 +56,26 @@ export const invitation: Invitation = {
   },
   quote: {
     lines: [
-      "장담하건대, 세상이 다 겨울이어도",
-      "우리 사랑은 늘 봄처럼 따뜻하고",
-      "간혹, 여름처럼 뜨거울 겁니다.",
+      "하늘 아래 내가 받은",
+      "가장 커다란 선물은 오늘입니다.",
+      "",
+      "오늘 받은 선물 가운데서도",
+      "가장 아름다운 선물은 당신입니다.",
     ],
-    source: "이수동, 「사랑가」",
+    source: "나태주, 「선물」",
   },
   gallery: [
-    { src: GalleryPhoto1, alt: "야경 속에서 입맞추는 신랑과 신부" },
-    { src: GalleryPhoto2, alt: "나무가 있는 야외에서 웃는 신랑과 신부" },
-    { src: GalleryPhoto3, alt: "물가에서 마주 보고 앉아 있는 신랑과 신부" },
-    { src: GalleryPhoto4, alt: "강변 나무 아래에서 춤추는 신랑과 신부" },
-    { src: GalleryPhoto5, alt: "노을진 강가의 두 사람 실루엣" },
-    { src: GalleryPhoto6, alt: "해질녘 서로 바라보는 두 사람 실루엣" },
+    ...Array.from({ length: 15 }, (_, index) => ({
+      src: `/wedding/studio-${String(index + 1).padStart(2, "0")}.webp`,
+      alt: `스튜디오 웨딩 사진 ${index + 1}`,
+    })),
+    ...Array.from({ length: 9 }, (_, index) => ({
+      src: `/wedding/soyouu-${String(index + 1).padStart(2, "0")}.webp`,
+      alt: `소유 필름 웨딩 사진 ${index + 1}`,
+    })),
+    ...Array.from({ length: 3 }, (_, index) => ({
+      src: `/wedding/snap-${String(index + 1).padStart(2, "0")}.webp`,
+      alt: `스냅 웨딩 사진 ${index + 1}`,
+    })),
   ],
 };

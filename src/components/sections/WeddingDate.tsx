@@ -2,13 +2,9 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Container } from "@/components/layout/Container";
 import { invitation } from "@/data/invitation";
-import {
-  formatCeremonyDateShort,
-  formatCeremonyDateTime,
-  toDateTimeAttribute,
-} from "@/lib/ceremony";
+import { formatCeremonyDateTime, toDateTimeAttribute } from "@/lib/ceremony";
 
-const WEEKDAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"] as const;
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"] as const;
 
 interface RemainingTime {
   days: number;
@@ -21,7 +17,6 @@ interface RemainingTime {
 function getRemainingTime(startsAt: string, now: number): RemainingTime {
   const difference = new Date(startsAt).getTime() - now;
   const secondsLeft = Math.max(0, Math.floor(difference / 1000));
-
   return {
     days: Math.floor(secondsLeft / 86400),
     hours: Math.floor((secondsLeft % 86400) / 3600),
@@ -31,7 +26,7 @@ function getRemainingTime(startsAt: string, now: number): RemainingTime {
   };
 }
 
-/** 한국 시간으로 달력을 만든다. 실행 브라우저의 시간대에 영향을 받지 않는다. */
+/** 브라우저 시간대와 무관하게 한국의 예식 날짜로 달력을 생성한다. */
 function getCeremonyCalendar(startsAt: string) {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: "Asia/Seoul",
@@ -39,24 +34,21 @@ function getCeremonyCalendar(startsAt: string) {
     month: "numeric",
     day: "numeric",
   }).formatToParts(new Date(startsAt));
-
-  const getNumber = (name: Intl.DateTimeFormatPartTypes) => {
-    const value = parts.find((part) => part.type === name)?.value;
-    if (value === undefined) throw new Error("예식 날짜 정보가 없습니다: " + name);
-    return Number(value);
+  const number = (type: Intl.DateTimeFormatPartTypes) => {
+    const part = parts.find((value) => value.type === type);
+    if (!part) throw new Error(`예식 날짜에 ${type} 정보가 없습니다.`);
+    return Number(part.value);
   };
-
-  const year = getNumber("year");
-  const month = getNumber("month");
-  const day = getNumber("day");
+  const year = number("year");
+  const month = number("month");
+  const day = number("day");
   const firstWeekday = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
   const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
   const cellCount = Math.ceil((firstWeekday + lastDay) / 7) * 7;
   const cells = Array.from({ length: cellCount }, (_, index) => {
-    const date = index - firstWeekday + 1;
-    return date >= 1 && date <= lastDay ? date : null;
+    const value = index - firstWeekday + 1;
+    return value >= 1 && value <= lastDay ? value : null;
   });
-
   return { year, month, day, cells };
 }
 
@@ -64,8 +56,7 @@ export function WeddingDate() {
   const { ceremony, couple } = invitation;
   const calendar = getCeremonyCalendar(ceremony.startsAt);
   const [remaining, setRemaining] = useState<RemainingTime | null>(null);
-  const ceremonyTime = formatCeremonyDateTime(ceremony.startsAt);
-  const schedule = ceremonyTime.split("일 ").slice(1).join("일 ") || ceremonyTime;
+  const ceremonyText = formatCeremonyDateTime(ceremony.startsAt).replace(/ 00분$/, "");
 
   useEffect(() => {
     const update = () => setRemaining(getRemainingTime(ceremony.startsAt, Date.now()));
@@ -74,72 +65,62 @@ export function WeddingDate() {
     return () => window.clearInterval(interval);
   }, [ceremony.startsAt]);
 
-  const numbers = [
-    { value: remaining?.days, label: "DAYS" },
-    { value: remaining?.hours, label: "HOURS" },
-    { value: remaining?.minutes, label: "MIN" },
-    { value: remaining?.seconds, label: "SEC" },
+  const counters = [
+    { label: "Day", value: remaining?.days },
+    { label: "Hour", value: remaining?.hours },
+    { label: "Min", value: remaining?.minutes },
+    { label: "Sec", value: remaining?.seconds },
   ];
 
   return (
     <Container>
       <DateArea aria-labelledby="wedding-date-heading">
-        <Ornament aria-hidden="true">✿</Ornament>
-        <Eyebrow>INVITATION</Eyebrow>
-        <DateHeading id="wedding-date-heading">
-          {formatCeremonyDateShort(ceremony.startsAt).replaceAll(".", ". ")}
-        </DateHeading>
+        <DateHeading id="wedding-date-heading">Our Wedding Day</DateHeading>
         <Schedule>
-          <time dateTime={toDateTimeAttribute(ceremony.startsAt)}>
-            {schedule}
-          </time>
+          <time dateTime={toDateTimeAttribute(ceremony.startsAt)}>{ceremonyText}</time>
         </Schedule>
 
         <CalendarCard>
-          <CalendarMonth>{calendar.year}년 {calendar.month}월</CalendarMonth>
+          <CalendarMonth>{calendar.month}월</CalendarMonth>
           <CalendarGrid aria-label={`${calendar.year}년 ${calendar.month}월 예식 달력`}>
             {WEEKDAYS.map((weekday, index) => (
               <Weekday key={weekday} $sunday={index === 0} $saturday={index === 6}>
                 {weekday}
               </Weekday>
             ))}
-            {calendar.cells.map((date, index) => {
-              const selected = date === calendar.day;
-              const weekday = index % 7;
-              return (
-                <DayCell key={index}>
-                  {date === null ? null : (
-                    <DayNumber
-                      $selected={selected}
-                      $sunday={weekday === 0}
-                      $saturday={weekday === 6}
-                    >
-                      {selected ? (
-                        <time dateTime={toDateTimeAttribute(ceremony.startsAt)} aria-label="결혼식 날짜">
-                          {date}
-                        </time>
-                      ) : date}
-                    </DayNumber>
-                  )}
-                </DayCell>
-              );
-            })}
+            {calendar.cells.map((day, index) => (
+              <DayCell key={index}>
+                {day !== null && (
+                  <DayNumber
+                    $selected={day === calendar.day}
+                    $sunday={index % 7 === 0}
+                    $saturday={index % 7 === 6}
+                  >
+                    {day === calendar.day ? (
+                      <time dateTime={toDateTimeAttribute(ceremony.startsAt)} aria-label="결혼식 날짜">
+                        {day}
+                      </time>
+                    ) : day}
+                  </DayNumber>
+                )}
+              </DayCell>
+            ))}
           </CalendarGrid>
-        </CalendarCard>
 
-        <CountdownCard aria-label="결혼식까지 남은 시간">
-          {numbers.map(({ value, label }, index) => (
-            <Counter key={label}>
-              <CounterNumber $accent={index === 0}>
-                {value === undefined || remaining === null
-                  ? "–"
-                  : index === 0 ? String(value) : String(value).padStart(2, "0")}
-              </CounterNumber>
-              <CounterLabel>{label}</CounterLabel>
-            </Counter>
-          ))}
-        </CountdownCard>
-        <CountdownSummary>
+          <Countdown aria-label="결혼식까지 남은 시간">
+            {counters.map(({ label, value }, index) => (
+              <Counter key={label}>
+                <CounterLabel>{label}</CounterLabel>
+                <CounterNumber $accent={index === 0}>
+                  {remaining === null || value === undefined
+                    ? "--"
+                    : String(value).padStart(2, "0")}
+                </CounterNumber>
+              </Counter>
+            ))}
+          </Countdown>
+        </CalendarCard>
+        <CountdownSummary aria-live="off">
           {remaining === null
             ? "결혼식까지 남은 시간을 계산하고 있습니다."
             : remaining.finished
@@ -152,139 +133,96 @@ export function WeddingDate() {
 }
 
 const DateArea = styled.section`
-  padding: 56px 0 16px;
+  padding: 45px 0 9px;
   text-align: center;
 `;
-
-const Ornament = styled.div`
-  margin-bottom: 15px;
-  color: #a8434a;
-  font-size: 20px;
-`;
-
-const Eyebrow = styled.p`
-  margin: 0 0 8px;
-  color: #79716e;
-  font-size: 11px;
-  letter-spacing: 0.25em;
-`;
-
 const DateHeading = styled.h2`
-  margin: 0 0 8px;
-  color: #3e3a39;
-  font-size: clamp(22px, 6vw, 28px);
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  margin: 0 0 17px;
+  color: ${({ theme }) => theme.color.accent};
+  font-size: clamp(25px, 6.3vw, 31px);
+  font-weight: 400;
+  letter-spacing: 0.035em;
 `;
-
 const Schedule = styled.p`
-  margin: 0 0 28px;
-  color: #79716e;
-  font-size: 13px;
+  margin: 0 0 30px;
+  color: ${({ theme }) => theme.color.text};
+  font-size: clamp(13px, 3.6vw, 17px);
+  font-weight: 500;
 `;
-
 const CalendarCard = styled.div`
   width: 100%;
-  max-width: 340px;
   margin: 0 auto;
-  padding: 20px;
-  border: 1px solid #e7e0dd;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 4px 18px rgba(62, 58, 57, 0.04);
+  padding: 24px clamp(13px, 4vw, 30px) 23px;
+  border-radius: 18px;
+  background: #fff6f2;
 `;
-
 const CalendarMonth = styled.div`
-  padding-bottom: 12px;
-  margin-bottom: 13px;
-  border-bottom: 1px solid #ece6e4;
-  font-size: 14px;
-  font-weight: 600;
-  color: #3e3a39;
+  padding-bottom: 15px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #efb3a7;
+  color: ${({ theme }) => theme.color.accent};
+  font-size: 25px;
+  font-weight: 500;
 `;
-
 const CalendarGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 6px 0;
+  gap: 8px 0;
 `;
-
 const Weekday = styled.div<{ $sunday: boolean; $saturday: boolean }>`
   padding-bottom: 4px;
-  color: ${({ $sunday, $saturday }) => $sunday ? "#a8434a" : $saturday ? "#5375a1" : "#938b88"};
-  font-family: Arial, sans-serif;
-  font-size: 10px;
+  color: ${({ $sunday, $saturday, theme }) =>
+    $sunday ? theme.color.accent : $saturday ? "#6b7eb1" : theme.color.text};
+  font-size: 12px;
   font-weight: 600;
 `;
-
 const DayCell = styled.div`
   display: flex;
   height: 37px;
   align-items: center;
   justify-content: center;
 `;
-
 const DayNumber = styled.span<{ $selected: boolean; $sunday: boolean; $saturday: boolean }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  color: ${({ $selected, $sunday, $saturday }) =>
-    $selected ? "#fff" : $sunday ? "#a8434a" : $saturday ? "#5375a1" : "#514b49"};
-  background: ${({ $selected }) => $selected ? "#a8434a" : "transparent"};
-  font-size: 13px;
-  font-weight: ${({ $selected }) => $selected ? "700" : "400"};
-  box-shadow: ${({ $selected }) => $selected ? "0 2px 10px rgba(168,67,74,0.25)" : "none"};
-  animation: ${({ $selected }) => $selected ? "gentle-beat 2.2s ease-in-out infinite" : "none"};
-
-  @keyframes gentle-beat {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.06); }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
+  color: ${({ $selected, $sunday, $saturday, theme }) =>
+    $selected ? "#fff" : $sunday ? theme.color.accent : $saturday ? "#6b7eb1" : theme.color.text};
+  background: ${({ $selected, theme }) => $selected ? theme.color.accent : "transparent"};
+  font-size: 14px;
+  font-weight: ${({ $selected }) => $selected ? 700 : 400};
 `;
-
-const CountdownCard = styled.div`
+const Countdown = styled.div`
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  max-width: 340px;
-  margin: 22px auto 0;
-  padding: 14px 9px;
-  border: 1px solid #e7e0dd;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.75);
+  gap: 5px;
+  margin-top: 20px;
+  padding: 20px 0 2px;
+  border-top: 1px solid #efb3a7;
 `;
-
 const Counter = styled.div`
   min-width: 0;
 `;
-
-const CounterNumber = styled.p<{ $accent: boolean }>`
-  margin: 0 0 3px;
-  color: ${({ $accent }) => $accent ? "#a8434a" : "#3e3a39"};
-  font-family: Arial, sans-serif;
-  font-size: 21px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-`;
-
 const CounterLabel = styled.p`
-  margin: 0;
-  color: #938b88;
+  margin: 0 0 8px;
+  color: ${({ theme }) => theme.color.accent};
   font-family: Arial, sans-serif;
-  font-size: 10px;
-  letter-spacing: 0.04em;
-`;
-
-const CountdownSummary = styled.p`
-  margin: 14px auto 0;
-  color: #79716e;
   font-size: 12px;
-  line-height: 1.7;
+`;
+const CounterNumber = styled.p<{ $accent: boolean }>`
+  margin: 0;
+  color: ${({ $accent, theme }) => $accent ? theme.color.accent : theme.color.text};
+  font-family: Arial, sans-serif;
+  font-size: clamp(24px, 7vw, 33px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+`;
+const CountdownSummary = styled.p`
+  margin: 22px 0 0;
+  color: ${({ theme }) => theme.color.textMuted};
+  font-size: clamp(11px, 3.1vw, 13px);
+  line-height: 1.8;
 `;

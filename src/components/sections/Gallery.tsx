@@ -1,209 +1,297 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import styled from "styled-components";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { invitation } from "@/data/invitation";
+import type { GalleryPhoto } from "@/types/invitation";
+
+const STUDIO_COUNT = 15;
+const SOYOUU_COUNT = 9;
 
 /**
- * 사진첩.
- *
- * react-image-gallery(약 40KB + 자체 CSS)를 걷어내고 CSS scroll-snap으로
- * 대체했다. 스와이프는 브라우저의 네이티브 스크롤이 그대로 처리하고,
- * 화면 밖 사진은 lazy loading으로 미룰 수 있다(기존에는 6장 2.9MB가
- * 한꺼번에 로드됐다).
- *
- * 다만 네이티브 스크롤만으로는 마우스 사용자가 "사진이 더 있다"는 사실도
- * 넘기는 방법도 알 수 없다. 라이브러리가 기본 제공하던 좌우 이동과 현재
- * 위치 표시는 직접 만들어 붙인다.
+ * 전체 27장을 즉시 확인할 수 있는 포토월.
+ * 스튜디오 9장(3열) + 6장(2열), soyouu 9장(3열), snap 3장(3열).
+ * 썸네일을 선택하면 전체 27장을 순서대로 스와이프할 수 있다.
  */
 export function Gallery() {
   const { gallery } = invitation;
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [current, setCurrent] = useState(0);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const previousFocus = useRef<HTMLElement | null>(null);
 
-  const syncCurrent = useCallback(() => {
-    const track = trackRef.current;
-    if (track === null || track.clientWidth === 0) return;
+  useEffect(() => setMounted(true), []);
 
-    setCurrent(Math.round(track.scrollLeft / track.clientWidth));
+  const openAt = (index: number) => {
+    previousFocus.current = document.activeElement as HTMLElement | null;
+    setActiveIndex(index);
+  };
+  const close = useCallback(() => {
+    setActiveIndex(null);
+    requestAnimationFrame(() => previousFocus.current?.focus());
   }, []);
 
-  const scrollBy = useCallback((step: number) => {
-    const track = trackRef.current;
-    if (track === null) return;
-
-    track.scrollBy({ left: track.clientWidth * step, behavior: "smooth" });
-  }, []);
-
-  const lastIndex = gallery.length - 1;
+  const studio = gallery.slice(0, STUDIO_COUNT);
+  const soyouu = gallery.slice(STUDIO_COUNT, STUDIO_COUNT + SOYOUU_COUNT);
+  const snap = gallery.slice(STUDIO_COUNT + SOYOUU_COUNT);
 
   return (
-    <Container>
-      <Section title="우리의 아름다운 순간">
-        {/*
-          이 영역은 이미 Section이 만든 section 랜드마크 안에 있으므로
-          role="region"을 또 두면 같은 사진을 가리키는 랜드마크가 둘이 된다.
-          group으로 낮춘다.
-        */}
-        <Track
-          ref={trackRef}
-          onScroll={syncCurrent}
-          /* 스크롤 컨테이너에 초점을 줘야 키보드로 좌우 탐색이 가능하다. */
-          tabIndex={0}
-          role="group"
-          aria-label="웨딩 사진"
-        >
-          <Slides role="list">
-            {gallery.map((photo, index) => (
-              <Slide key={photo.src}>
-                <Photo
-                  src={photo.src}
-                  alt={photo.alt}
-                  /*
-                   * 사진별 원본 비율을 속성으로 알려 이미지가 도착하기 전에도
-                   * 자리를 차지하게 한다. 없으면 로드될 때마다 아래 내용이
-                   * 밀려 내려간다(CLS).
-                   */
-                  width={index === 3 ? 1536 : 1024}
-                  height={index === 3 ? 1024 : 1536}
-                  loading={index === 0 ? "eager" : "lazy"}
-                  decoding="async"
-                />
-              </Slide>
-            ))}
-          </Slides>
-        </Track>
-
-        <Controls>
-          <NavButton
-            type="button"
-            onClick={() => scrollBy(-1)}
-            disabled={current === 0}
-            aria-label="이전 사진"
-          >
-            <Chevron direction="left" />
-          </NavButton>
-
-          {/* 점은 장식이고, 위치 정보는 옆의 텍스트가 전달한다. */}
-          <Dots aria-hidden="true">
-            {gallery.map((photo, index) => (
-              <Dot key={photo.src} $active={index === current} />
-            ))}
-          </Dots>
-          <Position>
-            {current + 1} / {gallery.length}
-          </Position>
-
-          <NavButton
-            type="button"
-            onClick={() => scrollBy(1)}
-            disabled={current === lastIndex}
-            aria-label="다음 사진"
-          >
-            <Chevron direction="right" />
-          </NavButton>
-        </Controls>
+    <GalleryContainer>
+      <Section title="We’re Getting Married">
+        <PhotoGrid $columns={3} role="list" aria-label="스튜디오 웨딩 사진 앞부분">
+          {studio.slice(0, 9).map((photo, i) => (
+            <PhotoTile key={photo.src} photo={photo} index={i} onOpen={openAt} />
+          ))}
+        </PhotoGrid>
+        <PhotoGrid $columns={2} role="list" aria-label="스튜디오 웨딩 사진 뒷부분">
+          {studio.slice(9).map((photo, i) => (
+            <PhotoTile key={photo.src} photo={photo} index={i + 9} onOpen={openAt} />
+          ))}
+        </PhotoGrid>
+        <PhotoGrid $columns={3} role="list" aria-label="소유 필름 사진">
+          {soyouu.map((photo, i) => (
+            <PhotoTile key={photo.src} photo={photo} index={i + STUDIO_COUNT} onOpen={openAt} />
+          ))}
+        </PhotoGrid>
+        <PhotoGrid $columns={3} role="list" aria-label="스냅 사진">
+          {snap.map((photo, i) => (
+            <PhotoTile
+              key={photo.src}
+              photo={photo}
+              index={i + STUDIO_COUNT + SOYOUU_COUNT}
+              onOpen={openAt}
+            />
+          ))}
+        </PhotoGrid>
+        <Hint>클릭하면 이미지를 크게 보실 수 있습니다.</Hint>
       </Section>
-    </Container>
+      {mounted && activeIndex !== null && createPortal(
+        <PhotoViewer
+          photos={gallery}
+          index={activeIndex}
+          onChange={setActiveIndex}
+          onClose={close}
+        />,
+        document.body,
+      )}
+    </GalleryContainer>
   );
 }
 
-function Chevron({ direction }: { direction: "left" | "right" }) {
+function PhotoTile({
+  photo, index, onOpen,
+}: {
+  photo: GalleryPhoto;
+  index: number;
+  onOpen: (index: number) => void;
+}) {
   return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path
-        d={direction === "left" ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"}
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <GridItem>
+      <TileButton
+        type="button"
+        onClick={() => onOpen(index)}
+        aria-label={`${index + 1}번째 사진 크게 보기: ${photo.alt}`}
+      >
+        <TileImage src={photo.src} alt={photo.alt} loading="lazy" decoding="async" />
+      </TileButton>
+    </GridItem>
   );
 }
 
-const Track = styled.div`
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  /* iOS에서 스크롤 막대가 레이아웃을 밀지 않게 한다. */
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
+function PhotoViewer({
+  photos, index, onChange, onClose,
+}: {
+  photos: readonly GalleryPhoto[];
+  index: number;
+  onChange: (index: number) => void;
+  onClose: () => void;
+}) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const touchStartX = useRef<number | null>(null);
+  const count = photos.length;
+  const move = useCallback((step: number) => {
+    onChange((index + step + count) % count);
+  }, [count, index, onChange]);
 
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        move(-1);
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        move(1);
+      } else if (event.key === "Tab") {
+        /* 모달 내부의 세 버튼에서 포커스를 순환한다. */
+        const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-photo-viewer] button"));
+        const first = nodes[0];
+        const last = nodes[nodes.length - 1];
+        if (!first || !last) return;
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault(); last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault(); first.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", onKey, true);
+    return () => document.removeEventListener("keydown", onKey, true);
+  }, [move, onClose]);
+
+  const currentPhoto = photos[index];
+  if (currentPhoto === undefined) return null;
+
+  return (
+    <ViewerOverlay
+      data-photo-viewer
+      role="dialog"
+      aria-modal="true"
+      aria-label="웨딩 사진 크게 보기"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+      onTouchStart={(event) => {
+        touchStartX.current = event.changedTouches[0]?.clientX ?? null;
+      }}
+      onTouchEnd={(event) => {
+        const start = touchStartX.current;
+        const end = event.changedTouches[0]?.clientX;
+        touchStartX.current = null;
+        if (start === null || end === undefined) return;
+        const delta = end - start;
+        if (Math.abs(delta) > 45) move(delta > 0 ? -1 : 1);
+      }}
+    >
+      <ViewerTop>
+        <ViewerCount>{index + 1} / {count}</ViewerCount>
+        <ViewerClose ref={closeRef} type="button" onClick={onClose} aria-label="사진 확대 닫기">
+          ×
+        </ViewerClose>
+      </ViewerTop>
+      <ViewerPhoto src={currentPhoto.src} alt={currentPhoto.alt} />
+      <ViewerNav>
+        <ViewerArrow type="button" aria-label="이전 사진" onClick={() => move(-1)}>‹</ViewerArrow>
+        <ViewerArrow type="button" aria-label="다음 사진" onClick={() => move(1)}>›</ViewerArrow>
+      </ViewerNav>
+    </ViewerOverlay>
+  );
+}
+
+const GalleryContainer = styled(Container)`
+  padding-left: 0;
+  padding-right: 0;
 `;
 
-const Slides = styled.ul`
-  display: flex;
-  gap: ${({ theme }) => theme.space[2]};
+const PhotoGrid = styled.ul<{ $columns: 2 | 3 }>`
+  display: grid;
+  grid-template-columns: repeat(${({ $columns }) => $columns}, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0 0 4px;
+  padding: 0;
+  list-style: none;
 `;
-
-const Slide = styled.li`
-  flex: 0 0 100%;
-  scroll-snap-align: center;
+const GridItem = styled.li`
+  min-width: 0;
 `;
-
-const Photo = styled.img`
+const TileButton = styled.button`
   display: block;
   width: 100%;
-  height: auto;
-  aspect-ratio: 2 / 3;
-  object-fit: contain;
-  border-radius: 4px;
-  background-color: rgba(0, 0, 0, 0.035);
-`;
-
-const Controls = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: ${({ theme }) => theme.space[2]};
-  margin-top: ${({ theme }) => theme.space[3]};
-`;
-
-const NavButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
   padding: 0;
   border: 0;
-  background: none;
-  color: ${({ theme }) => theme.color.accent};
-  cursor: pointer;
-
-  &:disabled {
-    color: ${({ theme }) => theme.color.textSubtle};
-    cursor: default;
+  background: #f3f3f3;
+  cursor: zoom-in;
+  overflow: hidden;
+`;
+const TileImage = styled.img`
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  transition: transform 250ms ease;
+  ${TileButton}:hover & {
+    transform: scale(1.025);
   }
 `;
-
-const Dots = styled.div`
+const Hint = styled.p`
+  margin: 15px 0 0;
+  color: ${({ theme }) => theme.color.textSubtle};
+  font-size: 12px;
+  text-align: center;
+`;
+const ViewerOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: ${({ theme }) => theme.zIndex.modal};
   display: flex;
-  gap: ${({ theme }) => theme.space[1]};
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 12, 12, 0.96);
+  touch-action: pan-y;
 `;
-
-const Dot = styled.span<{ $active: boolean }>`
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: ${({ theme, $active }) =>
-    $active ? theme.color.accent : theme.color.border};
-  transition: background-color ${({ theme }) => theme.motion.duration.fast} ease;
+const ViewerTop = styled.div`
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  left: 20px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
 `;
-
-const Position = styled.p`
-  margin-left: ${({ theme }) => theme.space[2]};
-  color: ${({ theme }) => theme.color.textMuted};
-  font-size: ${({ theme }) => theme.fontSize.xs};
+const ViewerCount = styled.span`
+  font-family: Arial, sans-serif;
+  font-size: 14px;
   font-variant-numeric: tabular-nums;
+`;
+const ViewerClose = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  background: transparent;
+  color: white;
+  font-size: 32px;
+  cursor: pointer;
+`;
+const ViewerPhoto = styled.img`
+  display: block;
+  width: 100%;
+  max-width: min(100vw, 900px);
+  height: auto;
+  max-height: 82dvh;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+`;
+const ViewerNav = styled.div`
+  position: absolute;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 22px;
+`;
+const ViewerArrow = styled.button`
+  width: 56px;
+  height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
 `;

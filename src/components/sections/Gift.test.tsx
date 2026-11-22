@@ -30,8 +30,8 @@ describe("Gift", () => {
     const groom = screen.getByRole("region", { name: "신랑측 계좌" });
     const bride = screen.getByRole("region", { name: "신부측 계좌" });
 
-    expect(within(groom).getByRole("heading", { name: "신랑" })).toBeInTheDocument();
-    expect(within(bride).getByRole("heading", { name: "신부" })).toBeInTheDocument();
+    expect(within(groom).getByRole("heading", { name: "신랑 측" })).toBeInTheDocument();
+    expect(within(bride).getByRole("heading", { name: "신부 측" })).toBeInTheDocument();
     expect(within(groom).getAllByRole("button", { name: /복사$/ })).toHaveLength(2);
     expect(within(bride).getAllByRole("button", { name: /복사$/ })).toHaveLength(3);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
