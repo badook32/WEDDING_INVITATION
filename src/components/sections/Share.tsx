@@ -68,7 +68,7 @@ export function Share() {
 
   return (
     <Container>
-      <Section title="청첩장 공유하기" animateTitle>
+      <Section title="청첩장 공유하기">
         <ShareActions>
           <PrimaryButton type="button" onClick={handleShare} disabled={sharing}>
             <ShareIcon />

@@ -76,16 +76,12 @@ export function WeddingDate() {
   return (
     <Container>
       <DateArea aria-labelledby="wedding-date-heading">
-        <Reveal safe>
-          <DateHeading id="wedding-date-heading">Our Wedding Day</DateHeading>
-        </Reveal>
-        <Reveal safe delay={60}>
-          <Schedule>
-            <time dateTime={toDateTimeAttribute(ceremony.startsAt)}>{ceremonyText}</time>
-          </Schedule>
-        </Reveal>
+        <DateHeading id="wedding-date-heading">Our Wedding Day</DateHeading>
+        <Schedule>
+          <time dateTime={toDateTimeAttribute(ceremony.startsAt)}>{ceremonyText}</time>
+        </Schedule>
 
-        <Reveal safe delay={80}>
+        <Reveal safe noFade>
           <CalendarCard>
           <CalendarMonth>{calendar.month}월</CalendarMonth>
           <CalendarGrid aria-label={`${calendar.year}년 ${calendar.month}월 예식 달력`}>
@@ -127,7 +123,7 @@ export function WeddingDate() {
           </Countdown>
           </CalendarCard>
         </Reveal>
-        <Reveal safe delay={80}>
+        <Reveal safe delay={750}>
           <CountdownSummary aria-live="off">
           {remaining === null
             ? "결혼식까지 남은 시간을 계산하고 있습니다."

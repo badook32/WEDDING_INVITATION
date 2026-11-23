@@ -40,7 +40,7 @@ export function Gallery() {
     <GalleryContainer>
       <Section title="We’re Getting Married" animateTitle>
         {rows.map(({ columns, startIndex, photos }, rowIndex) => (
-          <Reveal safe key={startIndex} delay={Math.min(rowIndex, 3) * 60}>
+          <Reveal safe noFade key={startIndex} delay={Math.min(rowIndex, 3) * 90}>
             <PhotoGrid
             key={rowIndex}
             $columns={columns}
@@ -59,9 +59,7 @@ export function Gallery() {
             </PhotoGrid>
           </Reveal>
         ))}
-        <Reveal safe>
-          <Hint>클릭하면 이미지를 크게 보실 수 있습니다.</Hint>
-        </Reveal>
+        <Hint>클릭하면 이미지를 크게 보실 수 있습니다.</Hint>
       </Section>
       {mounted && activeIndex !== null && createPortal(
         <PhotoViewer

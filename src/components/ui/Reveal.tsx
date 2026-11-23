@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import styled, { css, keyframes } from "styled-components";
+import styled from "styled-components";
 import { useInView } from "@/hooks/useInView";
 
 export interface RevealProps {
@@ -8,6 +8,8 @@ export interface RevealProps {
   delay?: number;
   /** 애니메이션 감지가 실패해도 콘텐츠를 숨기지 않는 안전 모드. */
   safe?: boolean;
+  /** 이미지·지도·버튼용: 투명도 변화 없이 천천히 올라오는 효과. */
+  noFade?: boolean;
 }
 
 /**
@@ -18,47 +20,39 @@ export interface RevealProps {
  * ref 타입과 실제 DOM 요소가 조용히 어긋난다. 다른 태그가 필요해지면
  * useInView의 타입 파라미터와 함께 올바르게 열어야 한다.
  */
-export function Reveal({ children, delay = 0, safe = false }: RevealProps) {
+export function Reveal({ children, delay = 0, safe = false, noFade = false }: RevealProps) {
   const { ref, inView } = useInView<HTMLDivElement>();
 
   return (
-    <Wrapper ref={ref} $visible={inView} $delay={delay} $safe={safe}>
+    <Wrapper ref={ref} $visible={inView} $delay={delay} $safe={safe} $noFade={noFade}>
       {children}
     </Wrapper>
   );
 }
 
 /**
- * 새 섹션에서는 초기 상태를 숨기지 않는다. Android WebView에서
- * IntersectionObserver 콜백이 누락되어도 사진·지도가 계속 보인다.
- * 화면 진입이 감지되는 경우에만 동일한 Fade-up을 한 번 실행한다.
+ * 기존 safe 키프레임은 시작 순간 opacity 0을 강제하여 사진이 깜박였다.
+ * 새 방식은 초기부터 보이는 상태로 두고 1.7초 동안 천천히 이동한다.
+ * noFade는 이미지·지도·버튼처럼 투명도 변경이 부자연스러운 영역에 사용.
  */
-const fadeUp = keyframes`
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const Wrapper = styled.div<{ $visible: boolean; $delay: number; $safe: boolean }>`
-  opacity: ${({ $visible, $safe }) => ($safe || $visible ? 1 : 0)};
-  transform: translateY(${({ $visible, $safe }) => ($safe || $visible ? "0" : "16px")});
-  transition:
-    opacity ${({ theme }) => theme.motion.duration.slow}
-      ${({ theme }) => theme.motion.easing},
-    transform ${({ theme }) => theme.motion.duration.slow}
-      ${({ theme }) => theme.motion.easing};
-  transition-delay: ${({ $delay, $safe }) => ($safe ? 0 : $delay)}ms;
-
-  ${({ $safe, $visible, $delay, theme }) =>
-    $safe && $visible
-      ? css`
-          animation: ${fadeUp} ${theme.motion.duration.slow}
-            ${theme.motion.easing} ${$delay}ms both;
-        `
-      : ""}
+const Wrapper = styled.div<{
+  $visible: boolean;
+  $delay: number;
+  $safe: boolean;
+  $noFade: boolean;
+}>`
+  opacity: ${({ $visible, $safe, $noFade }) =>
+    $safe ? ($noFade || $visible ? 1 : 0.94) : $visible ? 1 : 0};
+  transform: translateY(${({ $visible, $safe }) =>
+    $visible ? "0" : $safe ? "18px" : "16px"});
+  transition-property: opacity, transform;
+  transition-duration: ${({ $safe }) => $safe ? "1700ms" : "1400ms"};
+  transition-timing-function: cubic-bezier(0.35, 0.05, 0.2, 1);
+  transition-delay: ${({ $delay }) => $delay}ms;
 
   @media (prefers-reduced-motion: reduce) {
     opacity: 1;
     transform: none;
-    animation: none;
+    transition: none;
   }
 `;

@@ -14,7 +14,7 @@ export function Gift() {
 
   return (
     <Container>
-      <Section title="마음 전하실 곳" animateTitle>
+      <Section title="마음 전하실 곳">
         <Reveal safe delay={60}>
           <Description>
             전해 주시는 따뜻한 축하의 마음을<br />
@@ -27,10 +27,9 @@ export function Gift() {
             const side = group.label.replace(/측$/, "");
             return (
               <AccountGroup key={group.label} aria-label={`${group.label} 계좌`}>
-                <Reveal safe delay={70}>
-                  <GroupTitle>{side} 측</GroupTitle>
-                </Reveal>
-                <AccountList role="list">
+                <GroupTitle>{side} 측</GroupTitle>
+                <Reveal safe noFade delay={90}>
+                  <AccountList role="list">
                   {group.entries.map((entry) => (
                     <AccountRow
                       key={`${entry.relation}-${entry.name}-${entry.account.number}`}
@@ -38,7 +37,8 @@ export function Gift() {
                       side={side}
                     />
                   ))}
-                </AccountList>
+                  </AccountList>
+                </Reveal>
               </AccountGroup>
             );
           })}

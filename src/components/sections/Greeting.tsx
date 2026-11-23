@@ -10,8 +10,9 @@ export function Greeting() {
   return (
     <Container>
       <GreetingPanel aria-labelledby="greeting-heading">
-        <QuoteIntro>
-          <QuoteLines>
+        <Reveal safe delay={40}>
+          <QuoteIntro>
+            <QuoteLines>
             {quote.lines.map((line, index) =>
               line === "" ? (
                 <QuoteSpace key={`space-${index}`} aria-hidden="true" />
@@ -22,8 +23,9 @@ export function Greeting() {
           </QuoteLines>
           <QuoteCaption>
             <cite>— {quote.source}</cite>
-          </QuoteCaption>
-        </QuoteIntro>
+            </QuoteCaption>
+          </QuoteIntro>
+        </Reveal>
 
         <GreetingHeading id="greeting-heading">{greeting.heading}</GreetingHeading>
         <Message>

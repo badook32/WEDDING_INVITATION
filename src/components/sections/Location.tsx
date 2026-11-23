@@ -49,11 +49,9 @@ export function Location() {
 
   return (
     <Container>
-      <Section title="예식 장소 안내" animateTitle>
+      <Section title="예식 장소 안내">
         <VenueInfo>
-          <Reveal safe delay={60}>
-            <VenueName>{venue.name} {venue.hall}</VenueName>
-          </Reveal>
+          <VenueName>{venue.name} {venue.hall}</VenueName>
           <AddressButton type="button" onClick={copyAddress} aria-label={`${venue.address} 주소 복사`}>
             <span>{venue.address}</span>
             <CopyGlyph aria-hidden="true" viewBox="0 0 24 24" fill="none">
@@ -64,17 +62,18 @@ export function Location() {
         </VenueInfo>
 
         {containerProps !== null && status !== "failed" && (
-          <Reveal safe delay={80}>
+          <Reveal safe noFade delay={40}>
             <MapFrame {...containerProps} />
           </Reveal>
         )}
         {status === "failed" && (
-          <Reveal safe delay={80}>
+          <Reveal safe noFade delay={40}>
             <MapFallback>지도를 불러오지 못했습니다. 아래 길찾기를 이용해 주세요.</MapFallback>
           </Reveal>
         )}
 
-        <MapButtons aria-label="지도 서비스에서 길찾기">
+        <Reveal safe noFade delay={210}>
+          <MapButtons aria-label="지도 서비스에서 길찾기">
           <MapLink href="https://naver.me/5qLv5PuY" target="_blank" rel="noopener noreferrer">
             네이버지도
           </MapLink>
@@ -84,7 +83,8 @@ export function Location() {
           <MapLink href={kakaoMapUrl} target="_blank" rel="noopener noreferrer" onClick={handleKakaoNavi}>
             카카오내비
           </MapLink>
-        </MapButtons>
+          </MapButtons>
+        </Reveal>
       </Section>
     </Container>
   );
