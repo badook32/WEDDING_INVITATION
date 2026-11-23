@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
-import { useToast } from "@/components/ui";
+import { Reveal, useToast } from "@/components/ui";
 import { invitation } from "@/data/invitation";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { formatAccountForCopy, selectGiftAccountGroups } from "@/lib/gift";
@@ -14,18 +14,22 @@ export function Gift() {
 
   return (
     <Container>
-      <Section title="마음 전하실 곳">
-        <Description>
-          전해 주시는 따뜻한 축하의 마음을<br />
-          오래도록 간직하며<br />
-          행복한 모습으로 보답하며 살겠습니다.
-        </Description>
+      <Section title="마음 전하실 곳" animateTitle>
+        <Reveal safe delay={60}>
+          <Description>
+            전해 주시는 따뜻한 축하의 마음을<br />
+            오래도록 간직하며<br />
+            행복한 모습으로 보답하며 살겠습니다.
+          </Description>
+        </Reveal>
         <Groups>
           {groups.map((group) => {
             const side = group.label.replace(/측$/, "");
             return (
               <AccountGroup key={group.label} aria-label={`${group.label} 계좌`}>
-                <GroupTitle>{side} 측</GroupTitle>
+                <Reveal safe delay={70}>
+                  <GroupTitle>{side} 측</GroupTitle>
+                </Reveal>
                 <AccountList role="list">
                   {group.entries.map((entry) => (
                     <AccountRow

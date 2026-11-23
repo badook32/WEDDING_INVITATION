@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import styled from "styled-components";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
+import { Reveal } from "@/components/ui";
 import { invitation } from "@/data/invitation";
 import type { GalleryPhoto } from "@/types/invitation";
 
@@ -37,9 +38,10 @@ export function Gallery() {
 
   return (
     <GalleryContainer>
-      <Section title="We’re Getting Married">
+      <Section title="We’re Getting Married" animateTitle>
         {rows.map(({ columns, startIndex, photos }, rowIndex) => (
-          <PhotoGrid
+          <Reveal safe key={startIndex} delay={Math.min(rowIndex, 3) * 60}>
+            <PhotoGrid
             key={rowIndex}
             $columns={columns}
             role="list"
@@ -54,9 +56,12 @@ export function Gallery() {
                 onOpen={openAt}
               />
             ))}
-          </PhotoGrid>
+            </PhotoGrid>
+          </Reveal>
         ))}
-        <Hint>클릭하면 이미지를 크게 보실 수 있습니다.</Hint>
+        <Reveal safe>
+          <Hint>클릭하면 이미지를 크게 보실 수 있습니다.</Hint>
+        </Reveal>
       </Section>
       {mounted && activeIndex !== null && createPortal(
         <PhotoViewer

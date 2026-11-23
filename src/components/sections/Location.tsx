@@ -2,7 +2,7 @@ import type { MouseEvent } from "react";
 import styled from "styled-components";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
-import { useToast } from "@/components/ui";
+import { Reveal, useToast } from "@/components/ui";
 import { invitation } from "@/data/invitation";
 import { siteConfig } from "@/config/site";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
@@ -49,9 +49,11 @@ export function Location() {
 
   return (
     <Container>
-      <Section title="예식 장소 안내">
+      <Section title="예식 장소 안내" animateTitle>
         <VenueInfo>
-          <VenueName>{venue.name} {venue.hall}</VenueName>
+          <Reveal safe delay={60}>
+            <VenueName>{venue.name} {venue.hall}</VenueName>
+          </Reveal>
           <AddressButton type="button" onClick={copyAddress} aria-label={`${venue.address} 주소 복사`}>
             <span>{venue.address}</span>
             <CopyGlyph aria-hidden="true" viewBox="0 0 24 24" fill="none">
@@ -62,10 +64,14 @@ export function Location() {
         </VenueInfo>
 
         {containerProps !== null && status !== "failed" && (
-          <MapFrame {...containerProps} />
+          <Reveal safe delay={80}>
+            <MapFrame {...containerProps} />
+          </Reveal>
         )}
         {status === "failed" && (
-          <MapFallback>지도를 불러오지 못했습니다. 아래 길찾기를 이용해 주세요.</MapFallback>
+          <Reveal safe delay={80}>
+            <MapFallback>지도를 불러오지 못했습니다. 아래 길찾기를 이용해 주세요.</MapFallback>
+          </Reveal>
         )}
 
         <MapButtons aria-label="지도 서비스에서 길찾기">

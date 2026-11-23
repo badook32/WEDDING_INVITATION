@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Container } from "@/components/layout/Container";
+import { Reveal } from "@/components/ui";
 import { invitation } from "@/data/invitation";
 import { formatCeremonyDateTime, toDateTimeAttribute } from "@/lib/ceremony";
 
@@ -75,12 +76,17 @@ export function WeddingDate() {
   return (
     <Container>
       <DateArea aria-labelledby="wedding-date-heading">
-        <DateHeading id="wedding-date-heading">Our Wedding Day</DateHeading>
-        <Schedule>
-          <time dateTime={toDateTimeAttribute(ceremony.startsAt)}>{ceremonyText}</time>
-        </Schedule>
+        <Reveal safe>
+          <DateHeading id="wedding-date-heading">Our Wedding Day</DateHeading>
+        </Reveal>
+        <Reveal safe delay={60}>
+          <Schedule>
+            <time dateTime={toDateTimeAttribute(ceremony.startsAt)}>{ceremonyText}</time>
+          </Schedule>
+        </Reveal>
 
-        <CalendarCard>
+        <Reveal safe delay={80}>
+          <CalendarCard>
           <CalendarMonth>{calendar.month}월</CalendarMonth>
           <CalendarGrid aria-label={`${calendar.year}년 ${calendar.month}월 예식 달력`}>
             {WEEKDAYS.map((weekday, index) => (
@@ -119,14 +125,17 @@ export function WeddingDate() {
               </Counter>
             ))}
           </Countdown>
-        </CalendarCard>
-        <CountdownSummary aria-live="off">
+          </CalendarCard>
+        </Reveal>
+        <Reveal safe delay={80}>
+          <CountdownSummary aria-live="off">
           {remaining === null
             ? "결혼식까지 남은 시간을 계산하고 있습니다."
             : remaining.finished
               ? "소중한 날에 함께해 주셔서 감사합니다."
               : `${couple.groom.name} ♥ ${couple.bride.name}의 결혼식이 ${remaining.days}일 남았습니다.`}
-        </CountdownSummary>
+          </CountdownSummary>
+        </Reveal>
       </DateArea>
     </Container>
   );

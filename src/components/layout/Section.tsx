@@ -1,6 +1,6 @@
 import { useId, type ReactNode } from "react";
 import styled from "styled-components";
-import { SectionHeading } from "@/components/ui";
+import { Reveal, SectionHeading } from "@/components/ui";
 import Ornament from "@/assets/flower1.png";
 
 export interface SectionProps {
@@ -8,6 +8,8 @@ export interface SectionProps {
   title?: string;
   /** 제목 아래 꽃 장식을 넣을지. */
   ornament?: boolean;
+  /** 제목에만 안전한 등장 효과 적용. 버튼 등 본문은 영향을 받지 않는다. */
+  animateTitle?: boolean;
   children: ReactNode;
   className?: string;
 }
@@ -27,6 +29,7 @@ export interface SectionProps {
 export function Section({
   title,
   ornament = false,
+  animateTitle = false,
   children,
   className,
 }: SectionProps) {
@@ -38,7 +41,13 @@ export function Section({
       aria-labelledby={title === undefined ? undefined : headingId}
     >
       {title !== undefined && (
-        <SectionHeading id={headingId}>{title}</SectionHeading>
+        animateTitle ? (
+          <Reveal safe>
+            <SectionHeading id={headingId}>{title}</SectionHeading>
+          </Reveal>
+        ) : (
+          <SectionHeading id={headingId}>{title}</SectionHeading>
+        )
       )}
       {ornament && (
         <OrnamentImage src={Ornament} alt="" width={22} height={23} />
